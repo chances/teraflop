@@ -1,0 +1,32 @@
+name: Teraflop CI
+
+on: push
+#   schedule:
+#   - cron: '0 0 * * SUN'
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      max-parallel: 3
+      matrix:
+        os: [ubuntu-latest, macos-latest] # TODO: Integrate CI for windows-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use .NET Core 3.1
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.100' # .NET Core v3.1.0, SDK 3.1.100
+    - name: Build Solution
+      run: dotnet build
+    - name: Test
+      if: success()
+      run: dotnet test
+    # TODO: Run tests for coverage
+    # - name: Publish Coverage
+    #   uses: codecov/codecov-action@v1
+    #   if: success()
+    #   with:
+    #     token: ${{ secrets.CODECOV_TOKEN }}

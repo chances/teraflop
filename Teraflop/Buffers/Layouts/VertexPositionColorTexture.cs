@@ -12,7 +12,7 @@ namespace Teraflop.Buffers.Layouts
         public VertexPositionColorTexture(Vector3 position, Color4 color, Vector2 texCoordinates)
         {
             Position = position;
-            Color = new Vector4(color.A, color.R, color.G, color.B);
+            Color = color.ToVector4Argb();
             TexCoordinates = texCoordinates;
         }
 

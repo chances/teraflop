@@ -1,5 +1,4 @@
 using System.Numerics;
-using Veldrid;
 
 namespace Teraflop.Buffers.Layouts
 {
@@ -17,7 +16,8 @@ namespace Teraflop.Buffers.Layouts
         }
 
         public static VertexPositionNormalColor FromVertexPositionNormal(VertexPositionNormal vertex) =>
-            new VertexPositionNormalColor(vertex.Position, vertex.Normal, RgbaFloat.Grey.ToVector4());
+            new VertexPositionNormalColor(vertex.Position, vertex.Normal,
+                OpenTK.Graphics.Color4.CornflowerBlue.ToVector4Argb());
 
         public VertexLayoutDescription LayoutDescription => _layoutDescription;
 

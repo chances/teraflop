@@ -2,7 +2,6 @@ using System;
 using System.Drawing;
 using Teraflop.Components.Receivers;
 using Teraflop.ECS;
-using Veldrid;
 
 namespace Teraflop.Systems
 {

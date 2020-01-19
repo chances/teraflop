@@ -1,5 +1,3 @@
-using Veldrid;
-
 namespace Teraflop.Buffers
 {
     public interface IVertexBufferDescription

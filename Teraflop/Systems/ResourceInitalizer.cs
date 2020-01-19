@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Teraflop.Components;
 using Teraflop.ECS;
-using Veldrid;
 using InitializeAction = System.Action;
 
 namespace Teraflop.Systems

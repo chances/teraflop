@@ -1,5 +1,4 @@
 using System.Numerics;
-using Veldrid;
 
 namespace Teraflop.Buffers.Layouts
 {

@@ -1,6 +1,5 @@
 using Teraflop.Components;
 using Teraflop.ECS;
-using Veldrid;
 
 namespace Teraflop.Systems
 {

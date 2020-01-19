@@ -18,9 +18,9 @@ namespace Teraflop.Components
         {
 //            _tweener = new TweeningComponent(game, new AnimationComponent(game));
 
-            Resources.OnInitialize = (factory, device) => {
+            Resources.OnInitialize = () => {
                 _viewProj = new UniformViewProjection(ViewProjection);
-                _viewProj.Buffer.Initialize(factory, device);
+                _viewProj.Buffer.Initialize();
 
                 Resources.OnDispose = _viewProj.Buffer.Dispose;
             };

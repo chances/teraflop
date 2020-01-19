@@ -1,6 +1,5 @@
 ﻿using Teraflop.Components;
 using JetBrains.Annotations;
-using Veldrid;
 
 namespace Teraflop.ECS
 {
@@ -24,8 +23,7 @@ namespace Teraflop.ECS
 
         public bool Initialized => Resources.Initialized;
 
-        public void Initialize(ResourceFactory factory, GraphicsDevice device) =>
-            Resources.Initialize(factory, device);
+        public void Initialize() => Resources.Initialize();
 
         public void Dispose()
         {

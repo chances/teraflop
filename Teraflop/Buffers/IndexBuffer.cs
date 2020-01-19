@@ -1,8 +1,7 @@
 using System;
-using Teraflop.Components;
 using JetBrains.Annotations;
 using LiteGuard;
-using Veldrid;
+using OpenTK.Graphics.ES20;
 
 namespace Teraflop.Buffers
 {
@@ -22,11 +21,13 @@ namespace Teraflop.Buffers
 
         public int Count => _indices.Length;
 
-        public override void Initialize(ResourceFactory factory, GraphicsDevice device)
+        public override void Initialize()
         {
-            var size = (uint) (_indices.Length * sizeof(ushort));
-            _buffer = factory.CreateBuffer(new BufferDescription(size, BufferUsage.IndexBuffer));
-            device.UpdateBuffer(_buffer, 0, _indices);
+            base.Initialize();
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, DeviceBuffer.Value);
+            var size = (int) (_indices.Length * sizeof(ushort));
+            GL.BufferData(BufferTarget.ArrayBuffer, size, _indices, BufferUsageHint.StaticDraw);
         }
     }
 }

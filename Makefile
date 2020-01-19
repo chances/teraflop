@@ -2,5 +2,5 @@ all: build
 .DEFAULT_GOAL := build
 
 build:
-	@echo "Build project"
+	dotnet build
 .PHONY: build

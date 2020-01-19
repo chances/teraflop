@@ -1,10 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using Teraflop.Components;
 using JetBrains.Annotations;
 using LiteGuard;
-using Veldrid;
+using OpenTK.Graphics.ES20;
 
 namespace Teraflop.Buffers
 {
@@ -12,7 +10,7 @@ namespace Teraflop.Buffers
     {
         public abstract VertexLayoutDescription LayoutDescription { get; }
 
-        public abstract DeviceBuffer Vertices { get; }
+        public abstract int VertexBufferHandle { get; }
 
         public IndexBuffer Indices { get; protected set; }
     }
@@ -36,15 +34,17 @@ namespace Teraflop.Buffers
 
         public override VertexLayoutDescription LayoutDescription => _vertices[0].LayoutDescription;
 
-        public override DeviceBuffer Vertices => _buffer;
+        public override int VertexBufferHandle => DeviceBuffer.Value;
 
-        public override void Initialize(ResourceFactory factory, GraphicsDevice device)
+        public override void Initialize()
         {
-            var size = (uint) (_vertices.Length * _vertices[0].SizeInBytes);
-            _buffer = factory.CreateBuffer(new BufferDescription(size, BufferUsage.VertexBuffer));
-            device.UpdateBuffer(_buffer, 0, _vertices);
+            base.Initialize();
 
-            Indices.Initialize(factory, device);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, DeviceBuffer.Value);
+            var size = (int) (_vertices.Length * _vertices[0].SizeInBytes);
+            GL.BufferData(BufferTarget.ArrayBuffer, size, _vertices, BufferUsageHint.StaticDraw);
+
+            Indices.Initialize();
         }
 
         public new void Dispose()

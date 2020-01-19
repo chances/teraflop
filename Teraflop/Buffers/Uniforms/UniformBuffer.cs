@@ -1,13 +1,12 @@
+using System.Linq;
 using System.Runtime.CompilerServices;
-using Teraflop.Components;
-using Veldrid;
+using OpenTK.Graphics.ES20;
 
 namespace Teraflop.Buffers.Uniforms
 {
     public class UniformBuffer<T> : Buffer where T : struct
     {
-        private GraphicsDevice _device;
-        private T _uniformData;
+        private T[] _uniformData;
 
         public UniformBuffer()
         {
@@ -21,10 +20,10 @@ namespace Teraflop.Buffers.Uniforms
 
         public T UniformData
         {
-            private get => _uniformData;
+            private get => _uniformData.FirstOrDefault();
             set
             {
-                _uniformData = value;
+                _uniformData = new T[] { value };
                 if (Initialized)
                 {
                     Update();
@@ -32,17 +31,16 @@ namespace Teraflop.Buffers.Uniforms
             }
         }
 
-        public override void Initialize(ResourceFactory factory, GraphicsDevice device)
+        public override void Initialize()
         {
-            _buffer = factory.CreateBuffer(
-                new BufferDescription((uint)Unsafe.SizeOf<T>(), BufferUsage.UniformBuffer | BufferUsage.Dynamic));
-            _device = device;
+            base.Initialize();
             Update();
         }
 
         private void Update()
         {
-            _device.UpdateBuffer(_buffer, 0, UniformData);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, DeviceBuffer.Value);
+            GL.BufferData(BufferTarget.ArrayBuffer, Unsafe.SizeOf<T>(), _uniformData, BufferUsageHint.StreamDraw);
         }
     }
 }

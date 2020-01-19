@@ -7,7 +7,7 @@ using Teraflop.Buffers.Layouts;
 using Teraflop.Components;
 using JetBrains.Annotations;
 using LiteGuard;
-using Veldrid;
+using OpenTK.Graphics.ES20;
 
 namespace Teraflop.Primitives
 {
@@ -15,8 +15,8 @@ namespace Teraflop.Primitives
     {
         private IVertexBufferDescription[] _vertices = new IVertexBufferDescription[0];
         private ushort[] _indices = new ushort[0];
-        PrimitiveTopology _primitiveTopology = PrimitiveTopology.TriangleList;
-        FrontFace _frontFace = FrontFace.Clockwise;
+        PrimitiveType _primitiveTopology = PrimitiveType.Triangles;
+        FrontFaceDirection _frontFace = FrontFaceDirection.Cw;
 
         public MeshBuilder WithVertex([NotNull] IVertexBufferDescription vertex)
         {
@@ -45,7 +45,7 @@ namespace Teraflop.Primitives
             return this;
         }
 
-        public MeshBuilder WithPrimitiveTopology(PrimitiveTopology primitiveTopology)
+        public MeshBuilder WithPrimitiveTopology(PrimitiveType primitiveTopology)
         {
             _primitiveTopology = primitiveTopology;
             return this;
@@ -53,7 +53,7 @@ namespace Teraflop.Primitives
 
         public MeshBuilder WithFrontFaceClockwise(bool isClockwise)
         {
-            _frontFace = isClockwise ? FrontFace.Clockwise : FrontFace.CounterClockwise;
+            _frontFace = isClockwise ? FrontFaceDirection.Cw : FrontFaceDirection.Ccw;
             return this;
         }
 

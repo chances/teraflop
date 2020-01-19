@@ -2,23 +2,23 @@
 using Teraflop.Buffers;
 using Teraflop.ECS;
 using JetBrains.Annotations;
-using Veldrid;
-using Veldrid.Utilities;
+using OpenTK.Graphics.ES20;
 
 namespace Teraflop.Components
 {
     public class MeshData : Component
     {
         public Vector3 Center { get; }
-        public BoundingBox BoundingBox { get; }
-        public PrimitiveTopology PrimitiveTopology { get; protected set; }
-        public FrontFace FrontFace { get; protected set; }
+        // TODO: OpenTk Bounding box
+        // public BoundingBox BoundingBox { get; }
+        public PrimitiveType PrimitiveTopology { get; protected set; }
+        public FrontFaceDirection FrontFace { get; protected set; }
         public VertexBuffer VertexBuffer { get; protected set; }
         public IndexBuffer Indices => VertexBuffer.Indices;
 
         public MeshData([CanBeNull] string name,
-            PrimitiveTopology primitiveTopology = PrimitiveTopology.TriangleList,
-            FrontFace frontFace = FrontFace.Clockwise) : base(name)
+            PrimitiveType primitiveTopology = PrimitiveType.Triangles,
+            FrontFaceDirection frontFace = FrontFaceDirection.Cw) : base(name)
         {
             PrimitiveTopology = primitiveTopology;
             FrontFace = frontFace;
@@ -31,17 +31,17 @@ namespace Teraflop.Components
 
         public MeshData(string name,
             VertexBuffer<T> vertexBuffer,
-            PrimitiveTopology primitiveTopology = PrimitiveTopology.TriangleList,
-            FrontFace frontFace = FrontFace.Clockwise) : base(name)
+            PrimitiveType primitiveTopology = PrimitiveType.Triangles,
+            FrontFaceDirection frontFace = FrontFaceDirection.Cw) : base(name)
         {
             VertexBuffer = vertexBuffer;
             PrimitiveTopology = primitiveTopology;
             FrontFace = frontFace;
         }
 
-        public void Initialize(ResourceFactory factory, GraphicsDevice device)
+        public void Initialize()
         {
-            (VertexBuffer as VertexBuffer<T>).Initialize(factory, device);
+            (VertexBuffer as VertexBuffer<T>).Initialize();
             VertexBuffer.Name = $"{Name} VBO";
             Indices.Name = $"{Name} IBO";
         }

@@ -1,29 +1,28 @@
 using System;
-using Teraflop.Components;
-using Veldrid;
+using OpenTK.Graphics.ES20;
 
 namespace Teraflop.Buffers
 {
     public abstract class Buffer : IBufferResource, IDisposable
     {
-        protected DeviceBuffer _buffer;
+        public string Name { get; set; }
 
-        public string Name
-        {
-            get => _buffer.Name;
-            set => _buffer.Name = value;
-        }
+        public int? DeviceBuffer { get; private set; } = null;
 
-        public DeviceBuffer DeviceBuffer => _buffer;
-
-        public bool Initialized => _buffer != null;
+        public bool Initialized => DeviceBuffer.HasValue;
 
         public void Dispose()
         {
-            _buffer?.Dispose();
-            _buffer = null;
+            if (DeviceBuffer.HasValue)
+            {
+                GL.DeleteBuffer(DeviceBuffer.Value);
+            }
+            DeviceBuffer = null;
         }
 
-        public abstract void Initialize(ResourceFactory factory, GraphicsDevice device);
+        public virtual void Initialize()
+        {
+            DeviceBuffer = GL.GenBuffer();
+        }
     }
 }

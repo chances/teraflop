@@ -6,10 +6,9 @@
   <ItemGroup>
     <PackageReference Include="AssimpNet" Version="4.1.0" />
     <PackageReference Include="SolidGeometry" Version="0.3.26" />
-    <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
+    <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
     <PackageReference Include="LiteGuard" Version="2.2.0" />
+    <PackageReference Include="OpenTK.NetStandard" Version="1.0.7-prerelease" />
     <PackageReference Include="Veldrid" Version="4.7.0" />
-    <PackageReference Include="Veldrid.SPIRV" Version="1.0.12" />
-    <PackageReference Include="Veldrid.Utilities" Version="4.7.0" />
   </ItemGroup>
 </Project>

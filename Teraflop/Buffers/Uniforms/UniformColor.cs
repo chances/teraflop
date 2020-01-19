@@ -1,21 +1,19 @@
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using Veldrid;
+using OpenTK.Graphics;
 
 namespace Teraflop.Buffers.Uniforms
 {
-    public class UniformColor : IUniformBufferDescription<RgbaFloat>
+    public class UniformColor : IUniformBufferDescription<Color4>
     {
-        public UniformBuffer<RgbaFloat> Buffer { get; private set; }
+        public UniformBuffer<Color4> Buffer { get; private set; }
 
         public UniformColor()
         {
-            Buffer = new UniformBuffer<RgbaFloat>();
+            Buffer = new UniformBuffer<Color4>();
         }
 
-        public UniformColor(RgbaFloat color)
+        public UniformColor(Color4 color)
         {
-            Buffer = new UniformBuffer<RgbaFloat>(color);
+            Buffer = new UniformBuffer<Color4>(color);
         }
 
         public ResourceLayoutElementDescription LayoutDescription => UniformColor.ResourceLayout;

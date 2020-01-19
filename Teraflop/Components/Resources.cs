@@ -5,13 +5,13 @@ namespace Teraflop.Components
 {
     public class Resources : IResource
     {
-        public Action<ResourceFactory, GraphicsDevice> OnInitialize { private get; set; }
+        public Action OnInitialize { private get; set; }
         public Action OnDispose { private get; set; }
         public bool Initialized { get; private set; } = false;
 
-        public void Initialize(ResourceFactory factory, GraphicsDevice device)
+        public void Initialize()
         {
-            OnInitialize(factory, device);
+            OnInitialize();
             Initialized = true;
         }
 

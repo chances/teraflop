@@ -5,43 +5,25 @@ using System.Runtime.InteropServices;
 using Teraflop.Components.Receivers;
 using Teraflop.ECS;
 using Teraflop.Primitives;
-using Veldrid;
+using OpenTK.Graphics.ES20;
 
 namespace Teraflop.Components.UI
 {
-    public class Surface : ResourceComponent, IFramebufferSize, IReady, IUpdatable, IResourceSet, IDrawAction
+    public class Surface : ResourceComponent, IFramebufferSize, IReady, IUpdatable, IResource, IResourceLayout, IDrawAction
     {
-        private GraphicsDevice _device;
-        private Texture _texture;
-        private TextureView _textureView;
-        private Sampler _sampler;
+        private int? _texture = null;
         private Size _size = new Size(0, 0);
 
         public Surface() : base("UI Surface")
         {
-            Resources.OnInitialize = (factory, device) => {
-                _device = device;
-
-                _size = new Size(
-                    (int) device.SwapchainFramebuffer.Width,
-                    (int) device.SwapchainFramebuffer.Height
-                );
-
-                _sampler = device.LinearSampler;
-
-                ResourceLayout = factory.CreateResourceLayout(
-                    new ResourceLayoutDescription(
-                        new ResourceLayoutElementDescription(
-                            "SurfaceTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                        new ResourceLayoutElementDescription(
-                            "SurfaceSampler", ResourceKind.Sampler, ShaderStages.Fragment)));
-
+            Resources.OnInitialize = () => {
                 CreateTexture();
             };
             Resources.OnDispose = () => {
-                _textureView.Dispose();
-                _texture.Dispose();
-                ResourceSet.Dispose();
+                if (_texture.HasValue)
+                {
+                    GL.DeleteTexture(_texture.Value);
+                }
             };
         }
 
@@ -61,9 +43,7 @@ namespace Teraflop.Components.UI
             }
         }
 
-        public ResourceLayout ResourceLayout { get; private set; }
-
-        public ResourceSet ResourceSet { get; private set; }
+        public ResourceLayoutElementDescription ResourceLayout { get; private set; }
 
         public void Draw(Action drawDelegate)
         {
@@ -76,28 +56,23 @@ namespace Teraflop.Components.UI
 
             // TODO: Convert the pixel data to applicable format, update Veldrid texture
             // var sourceData = Bgra32ToRgba32(surface.Data, surface.Width, surface.Height);
-            // var width = (uint) surface.Width;
-            // var height = (uint) surface.Height;
             // var gcHandle = GCHandle.Alloc(sourceData, GCHandleType.Pinned);
-            // _device?.UpdateTexture(_texture, gcHandle.AddrOfPinnedObject(), (uint) sourceData.Length, 0, 0, 0, width, height, 1, 0, 0);
+            // GL.TexImage2D(_texture.Value, 0, PixelInternalFormat.Rgba, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, gcHandle.AddrOfPinnedObject());
             // gcHandle.Free();
         }
 
         private void CreateTexture()
         {
-            var factory = _device.ResourceFactory;
+            this.ResourceLayout = new ResourceLayoutElementDescription(
+                        "SurfaceTexture", ResourceKind.Texture2D, ShaderStages.Fragment);
 
-            _texture?.Dispose();
-            _texture = factory.CreateTexture(TextureDescription.Texture2D(
-                (uint) _size.Width, (uint) _size.Height,
-                1, 1, PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage.Sampled));
-            _textureView?.Dispose();
-            _textureView = factory.CreateTextureView(_texture);
-
-            ResourceSet?.Dispose();
-            ResourceSet = factory.CreateResourceSet(new ResourceSetDescription(
-                ResourceLayout, _textureView, _sampler
-            ));
+            if (_texture.HasValue)
+            {
+                GL.DeleteTexture(_texture.Value);
+            }
+            var textureHandle = (_texture = GL.GenTexture()).Value;
+            GL.BindTexture(TextureTarget.Texture2D, textureHandle);
+            GL.TexImage2D<byte>((All) _texture.Value, 0, (All) PixelInternalFormat.Rgba, _size.Width, _size.Height, 0, (All) PixelFormat.Rgba, (All) PixelType.UnsignedByte, new byte[] {});
         }
 
         private static byte[] Bgra32ToRgba32(IReadOnlyList<byte> source, int width, int height)

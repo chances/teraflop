@@ -1,5 +1,5 @@
 using System.Numerics;
-using Veldrid;
+using OpenTK.Graphics;
 
 namespace Teraflop.Buffers.Layouts
 {
@@ -9,10 +9,10 @@ namespace Teraflop.Buffers.Layouts
         public Vector4 Color;
         public Vector2 TexCoordinates;
 
-        public VertexPositionColorTexture(Vector3 position, RgbaFloat color, Vector2 texCoordinates)
+        public VertexPositionColorTexture(Vector3 position, Color4 color, Vector2 texCoordinates)
         {
             Position = position;
-            Color = color.ToVector4();
+            Color = new Vector4(color.A, color.R, color.G, color.B);
             TexCoordinates = texCoordinates;
         }
 

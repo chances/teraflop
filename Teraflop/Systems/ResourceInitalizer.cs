@@ -1,23 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Teraflop.Buffers;
 using Teraflop.Components;
 using Teraflop.ECS;
 using Veldrid;
-using InitializeAction = System.Action<Veldrid.ResourceFactory, Veldrid.GraphicsDevice>;
+using InitializeAction = System.Action;
 
 namespace Teraflop.Systems
 {
     public class ResourceInitializer : ECS.System
     {
-        private readonly ResourceFactory _factory;
-        private readonly GraphicsDevice _device;
-
-        public ResourceInitializer(World world, ResourceFactory factory, GraphicsDevice device) : base(world)
+        public ResourceInitializer(World world) : base(world)
         {
-            _factory = factory;
-            _device = device;
         }
 
         private new IEnumerable<Entity> OperableEntities => World
@@ -38,7 +32,7 @@ namespace Teraflop.Systems
                 // Only init device resources when dependencies are satisfied
                 if (resource is IDependencies dependant && !dependant.AreDependenciesSatisfied)
                 {
-                    return (a, b) => { }; // No-op
+                    return () => {}; // No-op
                 }
 
                 return resource.Initialize;
@@ -52,7 +46,7 @@ namespace Teraflop.Systems
 
                 foreach (var initializeAction in entityAndInitializers.Value)
                 {
-                    initializeAction.Invoke(_factory, _device);
+                    initializeAction.Invoke();
                 }
 
                 var isEntityInitialized = entity.Values.OfType<IResource>()

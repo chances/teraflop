@@ -3,32 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using Teraflop.Components;
 using Teraflop.ECS;
-using Veldrid;
+using OpenTK.Graphics.ES20;
+using OpenTK.Graphics;
 
 namespace Teraflop.Systems
 {
-    public class Renderer : ECS.System, IDisposable
+    public class Renderer : ECS.System
     {
-        private readonly ResourceFactory _factory;
-        private readonly Framebuffer _framebuffer;
-        private readonly Action<CommandList> _submitCommands;
-        private CommandList _commands;
-        private Dictionary<Material, Pipeline> _pipelines = new Dictionary<Material, Pipeline>();
-
-        public Renderer(World world, ResourceFactory factory, Framebuffer framebuffer, Action<CommandList> submitCommands) : base(world)
+        public Renderer(World world) : base(world)
         {
-            _factory = factory;
-            _framebuffer = framebuffer;
-            _submitCommands = submitCommands;
-            _commands = factory.CreateCommandList();
         }
 
         public override void Operate()
         {
-            _commands.Begin();
-            _commands.SetFramebuffer(_framebuffer);
-            _commands.ClearColorTarget(0, RgbaFloat.Black);
-            _commands.ClearDepthStencil(1f);
+            // TODO: Support second and more framebuffers
+            GL.ClearColor(Color4.Black);
+            GL.ClearDepth(1f);
+            GL.ClearStencil(0);
 
             var renderables = World.Where(CanOperateOn)
                 .GroupBy(entity =>
@@ -38,62 +29,44 @@ namespace Teraflop.Systems
                         entity.GetComponent<Material>(),
                         mesh.FrontFace,
                         mesh.PrimitiveTopology,
-                        entity.GetComponent<IResourceSet>().ResourceLayout,
+                        entity.GetComponent<IResourceLayout>().ResourceLayout,
                         mesh.VertexBuffer.LayoutDescription
                     );
                 });
             foreach (var renderable in renderables)
             {
                 var material = renderable.Key.Item1;
+                var frontFace = renderable.Key.FrontFace;
+                var primitiveTopology = renderable.Key.PrimitiveTopology;
+                var resourceLayout = renderable.Key.ResourceLayout;
+                var vertexLayout = renderable.Key.LayoutDescription;
 
-                if (!_pipelines.ContainsKey(material))
-                {
-                    var frontFace = renderable.Key.FrontFace;
-                    var primitiveTopology = renderable.Key.PrimitiveTopology;
-                    var resourceLayout = renderable.Key.ResourceLayout;
-                    var vertexLayout = renderable.Key.LayoutDescription;
-                    var pipeline = CreatePipeline(material,
-                        frontFace, primitiveTopology,
-                        resourceLayout, vertexLayout);
-
-                    _pipelines.Add(material, pipeline);
-                }
-
-                _commands.SetPipeline(_pipelines[material]);
+                GL.BlendFunc(material.BlendStateSource, material.BlendStateDestination);
+                GL.DepthMask(material.DepthStencilState.DepthWriteEnabled);
+                GL.DepthFunc(material.DepthStencilState.DepthComparison);
+                GL.CullFace(material.CullMode);
+                GL.FrontFace(frontFace);
+                // TODO: GL.Scissor() if we need to enable the scissor test
+                GL.UseProgram(material.ShaderProgramHandle);
 
                 var meshesWithUniforms = renderable.Select(entity => (
-                    entity.GetComponent<MeshData>().VertexBuffer,
-                    entity.GetComponent<IResourceSet>().ResourceSet
+                    entity.GetComponent<MeshData>(),
+                    entity.GetComponent<IResourceLayout>().ResourceLayout
                 ));
                 foreach (var meshAndUniforms in meshesWithUniforms)
                 {
-                    var mesh = meshAndUniforms.VertexBuffer;
+                    var mesh = meshAndUniforms.Item1;
+                    var vertexBuffer = mesh.VertexBuffer;
 
-                    _commands.SetVertexBuffer(0, mesh.Vertices);
-                    _commands.SetIndexBuffer(mesh.Indices.DeviceBuffer, IndexFormat.UInt16);
-                    _commands.SetGraphicsResourceSet(0, meshAndUniforms.ResourceSet);
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBuffer.VertexBufferHandle);
+                    // Change this for mesh.Indices?
+                    GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+                    GL.EnableVertexAttribArray(0);
 
-                    _commands.DrawIndexed(
-                        indexCount: (uint) mesh.Indices.Count,
-                        instanceCount: 1, // TODO: Group renderables by MeshData and figure out instance uniforms
-                        indexStart: 0,
-                        vertexOffset: 0,
-                        instanceStart: 0
-                    );
+                    // TODO: Group renderables by MeshData and figure out instance uniforms
+
+                    GL.DrawArrays(primitiveTopology, 0, mesh.Indices.Count);
                 }
-            }
-
-            _commands.End();
-            _submitCommands(_commands);
-        }
-
-        public void Dispose()
-        {
-            _commands.Dispose();
-
-            foreach (var pipeline in _pipelines.Keys)
-            {
-                pipeline.Dispose();
             }
         }
 
@@ -107,7 +80,7 @@ namespace Teraflop.Systems
         /// <description><see cref="MeshData"/></description>
         /// </item>
         /// <item>
-        /// <description>and <see cref="IResourceSet"/></description>
+        /// <description>and <see cref="IResourceLayout"/></description>
         /// </item>
         /// </list>
         /// </remarks>
@@ -117,37 +90,8 @@ namespace Teraflop.Systems
         (
             typeof(Material),
             typeof(MeshData),
-            typeof(IResourceSet)
-        ) && entity.HasTag(Tags.Initialized);
-
-        private Pipeline CreatePipeline(
-            Material material, FrontFace frontFace, PrimitiveTopology primitiveTopology,
-            ResourceLayout resourceLayout, VertexLayoutDescription vertexLayout)
-        {
-            var pipelineDesc = new GraphicsPipelineDescription
-            {
-                BlendState = material.BlendState,
-                DepthStencilState = material.DepthStencilState,
-                RasterizerState = new RasterizerStateDescription(
-                    cullMode: material.CullMode,
-                    fillMode: material.FillMode,
-                    frontFace: frontFace,
-                    depthClipEnabled: true,
-                    scissorTestEnabled: false
-                ),
-                PrimitiveTopology = primitiveTopology,
-                ResourceLayouts = new ResourceLayout[]
-                {
-                    resourceLayout
-                },
-                ShaderSet = new ShaderSetDescription(
-                    new VertexLayoutDescription[] { vertexLayout },
-                    material.Shaders
-                ),
-                Outputs = _framebuffer.OutputDescription
-            };
-
-            return _factory.CreateGraphicsPipeline(pipelineDesc);
-        }
+            typeof(IResourceLayout)
+        ) && entity.HasTag(Tags.Initialized)
+        && entity.GetComponent<IResourceLayout>().ResourceLayout.Kind == ResourceKind.UniformBuffer;
     }
 }

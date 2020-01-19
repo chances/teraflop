@@ -5,15 +5,15 @@ using Teraflop.Assets;
 using Teraflop.ECS;
 using JetBrains.Annotations;
 using LiteGuard;
-using Veldrid;
-using Veldrid.SPIRV;
+using OpenTK.Graphics.ES20;
 
 namespace Teraflop.Components
 {
     public class Material : ResourceComponent, IAsset, IDependencies
     {
         private static bool _isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        private byte[] _vertexShaderSource, _fragmentShaderSource;
+        private string _vertexShaderSource, _fragmentShaderSource;
+        private int[] _shaderHandles;
 
         public Material([NotNull] string name, string shaderFilename) : base(name)
         {
@@ -21,26 +21,43 @@ namespace Teraflop.Components
             Guard.AgainstNullArgument(nameof(shaderFilename), shaderFilename);
             ShaderFilename = shaderFilename;
             DepthStencilState = DefaultDepthStencilState;
-            CullMode = FaceCullMode.Back;
-            FillMode = PolygonFillMode.Solid;
+            CullMode = CullFaceMode.Back;
             DepthClipEnabled = true;
             BlendState = DefaultBlendState;
 
-            Resources.OnInitialize = (factory, _) => {
+            Resources.OnInitialize = () => {
                 // Compile shaders
                 try {
-                    var vsDescription = new ShaderDescription(ShaderStages.Vertex, _vertexShaderSource, "VS");
-                    var fsDescription = new ShaderDescription(ShaderStages.Fragment, _fragmentShaderSource, "FS");
-
                     if (_isWindows)
                     {
-                        var vs = factory.CreateShader(vsDescription);
-                        var fs = factory.CreateShader(fsDescription);
-                        Shaders = new Shader[] { fs, vs };
+                        ShaderProgramHandle = GL.CreateProgram();
+
+                        var vs = GL.CreateShader(ShaderType.VertexShader);
+                        GL.ShaderSource(vs, _vertexShaderSource);
+                        var fs = GL.CreateShader(ShaderType.FragmentShader);
+                        GL.ShaderSource(fs, _fragmentShaderSource);
+
+                        _shaderHandles = new int[] { fs, vs };
+                        foreach (var shaderHandle in _shaderHandles)
+                        {
+                            GL.CompileShader(shaderHandle);
+                            string infoLog = GL.GetShaderInfoLog(shaderHandle);
+                            if (!string.IsNullOrEmpty(infoLog))
+                            {
+                                System.Console.Error.WriteLine(infoLog);
+                                throw new ShaderException(
+                                    "Could not compile shader", new System.Exception(infoLog));
+                            }
+                            GL.AttachShader(ShaderProgramHandle, shaderHandle);
+                        }
+
+                        GL.LinkProgram(ShaderProgramHandle);
                     }
                     else
                     {
-                        Shaders = factory.CreateFromSpirv(vsDescription, fsDescription);
+                        // TODO: Convert SPIR-V to OpenTk/OpenGL ES 2 compatible shader akin to Veldrid.SPIRV, i.e. SPIR-V Cross
+                        throw new System.NotImplementedException("TODO: Convert SPIR-V to OpenTk/OpenGL ES 2 compatible shader");
+                        // Shaders = factory.CreateFromSpirv(vsDescription, fsDescription);
                     }
                 } finally {
                     _vertexShaderSource = null;
@@ -48,24 +65,28 @@ namespace Teraflop.Components
                 }
             };
             Resources.OnDispose = () => {
-                foreach (var shader in Shaders)
+                foreach (var shaderHandle in _shaderHandles)
                 {
-                    shader.Dispose();
+                    GL.DetachShader(ShaderProgramHandle, shaderHandle);
+                    GL.DeleteShader(shaderHandle);
+                    GL.DeleteProgram(ShaderProgramHandle);
                 }
             };
         }
 
         public static readonly DepthStencilStateDescription DefaultDepthStencilState = new DepthStencilStateDescription(
-            depthTestEnabled: true, depthWriteEnabled: true, comparisonKind: ComparisonKind.LessEqual);
-        public static readonly BlendStateDescription DefaultBlendState = BlendStateDescription.SingleOverrideBlend;
+            depthTestEnabled: true, depthWriteEnabled: true, comparisonKind: DepthFunction.Lequal);
+        // https://veldrid.dev/api/Veldrid.BlendAttachmentDescription.html#Veldrid_BlendAttachmentDescription_OverrideBlend
+        public static readonly BlendingFactor DefaultBlendState = BlendingFactor.Src1Color;
 
         public string ShaderFilename { get; }
-        public Shader[] Shaders { get; private set; }
+        public int ShaderProgramHandle { get; private set; }
         public DepthStencilStateDescription DepthStencilState { get; }
-        public FaceCullMode CullMode {get; set; }
-        public PolygonFillMode FillMode { get; set; }
+        public CullFaceMode CullMode {get; set; }
         public bool DepthClipEnabled { get; }
-        public BlendStateDescription BlendState { get; }
+        public BlendingFactorSrc BlendStateSource { get; }
+        public BlendingFactorDest BlendStateDestination { get; }
+        public BlendingFactor BlendState { get; }
 
         public bool AreDependenciesSatisfied =>
             _vertexShaderSource != null && _fragmentShaderSource != null;
@@ -81,27 +102,36 @@ namespace Teraflop.Components
             );
 
             if (!_isWindows && compiledShadersExist) {
-                // TODO: Wait for https://github.com/mellinoe/veldrid-spirv/pull/2 and remove this? Or keep em for mobile?
-                _vertexShaderSource = ShaderImporter.Instance.Import(assetDataLoader.Load(
-                    AssetType.Shader,
-                    $"{shaderFilenameWithoutExtension}.vs.spirv"
-                ));
-                _fragmentShaderSource = ShaderImporter.Instance.Import(assetDataLoader.Load(
-                    AssetType.Shader,
-                    $"{shaderFilenameWithoutExtension}.fs.spirv"
-                ));
+                // TODO: Compile shaders from SPIR-V, i.e. https://github.com/mellinoe/veldrid-spirv
+                throw new System.NotImplementedException("TODO: Compile shaders from SPIR-V");
+                // _vertexShaderSource = ShaderImporter.Instance.Import(assetDataLoader.Load(
+                //     AssetType.Shader,
+                //     $"{shaderFilenameWithoutExtension}.vs.spirv"
+                // ));
+                // _fragmentShaderSource = ShaderImporter.Instance.Import(assetDataLoader.Load(
+                //     AssetType.Shader,
+                //     $"{shaderFilenameWithoutExtension}.fs.spirv"
+                // ));
             }
             else if (assetDataLoader.Exists(AssetType.Shader, ShaderFilename))
             {
                 var shaderSource = ShaderImporter.Instance.Import(
                     assetDataLoader.Load(AssetType.Shader, ShaderFilename)
                 );
-                _vertexShaderSource = _fragmentShaderSource = shaderSource;
+                var shaderSourceString = System.Text.Encoding.UTF8.GetString(shaderSource);
+                _vertexShaderSource = _fragmentShaderSource = shaderSourceString;
             }
             else
             {
                 throw new FileNotFoundException($"Shader not found: {ShaderFilename}");
             }
         }
+    }
+
+    public class ShaderException : System.Exception
+    {
+        public ShaderException() { }
+        public ShaderException(string message) : base(message) { }
+        public ShaderException(string message, System.Exception inner) : base(message, inner) { }
     }
 }

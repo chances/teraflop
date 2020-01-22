@@ -1,3 +1,4 @@
+using System.Linq;
 using Teraflop.Assets;
 using Teraflop.Components;
 using Teraflop.ECS;
@@ -15,7 +16,9 @@ namespace Teraflop.Systems
 
         public override void Operate()
         {
-            foreach (var asset in OperableComponents)
+            // Load assets for resources that are uninitalized
+            foreach (var asset in OperableComponents
+                .Where(component => (component is IResource resource && !resource.Initialized)))
             {
                 asset.LoadAssets(_assetDataLoader);
             }

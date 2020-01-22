@@ -12,9 +12,9 @@ using OpenTK.Graphics.ES20;
 
 namespace Teraflop
 {
-    public abstract class Game : IDisposable
+    public abstract class Game
     {
-        private readonly AssetDataLoader _assetDataLoader;
+        private AssetDataLoader _assetDataLoader;
         private Renderer _renderer;
         protected FramebufferSizeProvider _framebufferSizeProvider;
 
@@ -24,10 +24,9 @@ namespace Teraflop
             LimitFrameRate = true;
             DesiredFramesPerSecond = 60.0;
 
-            _assetDataLoader = new AssetDataLoader(Assembly.GetCallingAssembly(), AssetDirectoryPaths);
-
             OpenTkWindow = new GameWindow(width, height, GraphicsMode.Default, title,
-                fullscreen ? GameWindowFlags.Fullscreen : GameWindowFlags.Default);
+                fullscreen ? GameWindowFlags.Fullscreen : GameWindowFlags.Default,
+                DisplayDevice.Default, 2, 0, GraphicsContextFlags.Debug);
         }
 
         private GameTime _gameTime;
@@ -37,13 +36,20 @@ namespace Teraflop
         public bool IsActive { get; private set; }
         public bool LimitFrameRate { get; }
         public double DesiredFramesPerSecond { get; protected set; }
-        public double FramesPerSecond => Math.Round(OpenTkWindow?.RenderFrequency ?? 0, 2);
+        public double FramesPerSecond => Math.Floor(OpenTkWindow?.RenderFrequency ?? 0);
         public MouseState MouseState { get; private set; }
         public KeyboardState KeyboardState { get; private set; }
+        public string Title {
+            get => OpenTkWindow?.Title ?? null;
+            protected set
+            {
+                if (OpenTkWindow != null)
+                {
+                    OpenTkWindow.Title = value;
+                }
+            }
+        }
 
-        // public GraphicsDevice GraphicsDevice { get; private set; }
-        // public ResourceFactory ResourceFactory => GraphicsDevice.ResourceFactory;
-        // public Framebuffer Framebuffer => GraphicsDevice.SwapchainFramebuffer;
         protected GameWindow OpenTkWindow { get; }
 
         public Dictionary<AssetType, string> AssetDirectoryPaths { get; } = new Dictionary<AssetType, string>();
@@ -54,13 +60,11 @@ namespace Teraflop
             .FirstOrDefault(entity => entity.HasComponent<Components.Camera>())
             ?.GetComponent<Components.Camera>() ?? null;
 
-        protected void Initialize()
+        protected virtual void Initialize()
         {
-            // TODO: Get the DIP size from the _actual_ backing framebuffer
-            _framebufferSizeProvider = new FramebufferSizeProvider(
-                World, (uint) OpenTkWindow.Width, (uint) OpenTkWindow.Height
-            );
-            _renderer = new Renderer(World);
+            _assetDataLoader = new AssetDataLoader(Assembly.GetCallingAssembly(), AssetDirectoryPaths);
+
+            InitializeWorld();
         }
 
         /// <summary>
@@ -68,6 +72,11 @@ namespace Teraflop
         /// </summary>
         private void InitializeWorld()
         {
+            // TODO: Get the DIP size from the _actual_ backing framebuffer
+            _framebufferSizeProvider = new FramebufferSizeProvider(
+                World, (uint) OpenTkWindow.Width, (uint) OpenTkWindow.Height
+            );
+            _renderer = new Renderer(World);
             new ComponentAssetLoader(World, _assetDataLoader).Operate();
             new ResourceInitializer(World).Operate();
         }
@@ -75,16 +84,18 @@ namespace Teraflop
         public void Run()
         {
             _gameTime = new GameTime();
-            OpenTkWindow.Run(60.0, DesiredFramesPerSecond);
             OpenTkWindow.Load += (object sender, EventArgs e) =>
             {
                 IsActive = true;
 
                 Initialize();
-                InitializeWorld();
 
                 Update(_gameTime);
-                GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+
+                // Set default values for clearing buffers
+                GL.ClearColor(Color4.Black);
+                GL.ClearDepth(1f);
+                GL.ClearStencil(0);
             };
             OpenTkWindow.Unload += (object sender, EventArgs e) =>
             {
@@ -111,7 +122,6 @@ namespace Teraflop
                     OpenTkWindow.TargetRenderFrequency = DesiredFramesPerSecond;
                 }
                 Update(_gameTime);
-                if (!IsActive) OpenTkWindow.Exit();
 
                 OpenTkWindow.ProcessEvents();
             };
@@ -120,6 +130,8 @@ namespace Teraflop
                 // TODO: Do I need to update game time here?
                 Render(_gameTime);
             };
+
+            OpenTkWindow.Run(DesiredFramesPerSecond, DesiredFramesPerSecond);
         }
 
         protected void ProcessInput(MouseState mouseState, KeyboardState keyboardState)
@@ -136,6 +148,7 @@ namespace Teraflop
             new KeyboardProvider(World, KeyboardState).Operate();
             new ModelTransformationProvider(World).Operate();
             new ViewProjectionProvider(World, Camera?.ViewProjectionUniform ?? null).Operate();
+            new ComponentAssetLoader(World, _assetDataLoader).Operate();
             new ResourceInitializer(World).Operate();
             _framebufferSizeProvider.Operate();
 
@@ -156,8 +169,7 @@ namespace Teraflop
         protected void Exit()
         {
             IsActive = false;
+            OpenTkWindow.Exit();
         }
-
-        public abstract void Dispose();
     }
 }

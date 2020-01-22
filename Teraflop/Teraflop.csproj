@@ -10,5 +10,6 @@
     <PackageReference Include="LiteGuard" Version="2.2.0" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
     <PackageReference Include="OpenTK.NetStandard" Version="1.0.7-prerelease" />
+    <PackageReference Include="WaveEngine.HLSLEverywhere" Version="3.0.0.3716-preview2" />
   </ItemGroup>
 </Project>

@@ -1,7 +1,10 @@
+using System.Collections.Generic;
+
 namespace Teraflop.Components
 {
-    public interface IResourceLayout
+    public interface IResourceSet
     {
-        ResourceLayoutElementDescription ResourceLayout { get; }
+        IEnumerable<ResourceLayoutElementDescription> ResourceLayout { get; }
+        void BindResourceSet();
     }
 }

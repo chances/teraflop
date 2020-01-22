@@ -24,48 +24,41 @@ namespace Teraflop.Components
             CullMode = CullFaceMode.Back;
             DepthClipEnabled = true;
             BlendState = DefaultBlendState;
+            BlendStateSource = BlendingFactorSrc.SrcColor;
+            BlendStateDestination = BlendingFactorDest.Zero;
 
             Resources.OnInitialize = () => {
                 // Compile shaders
                 try {
-                    if (_isWindows)
+                    ShaderProgramHandle = GL.CreateProgram();
+
+                    var vs = GL.CreateShader(ShaderType.VertexShader);
+                    GL.ShaderSource(vs, _vertexShaderSource);
+                    var fs = GL.CreateShader(ShaderType.FragmentShader);
+                    GL.ShaderSource(fs, _fragmentShaderSource);
+
+                    _shaderHandles = new int[] { fs, vs };
+                    foreach (var shaderHandle in _shaderHandles)
                     {
-                        ShaderProgramHandle = GL.CreateProgram();
-
-                        var vs = GL.CreateShader(ShaderType.VertexShader);
-                        GL.ShaderSource(vs, _vertexShaderSource);
-                        var fs = GL.CreateShader(ShaderType.FragmentShader);
-                        GL.ShaderSource(fs, _fragmentShaderSource);
-
-                        _shaderHandles = new int[] { fs, vs };
-                        foreach (var shaderHandle in _shaderHandles)
+                        GL.CompileShader(shaderHandle);
+                        string infoLog = GL.GetShaderInfoLog(shaderHandle);
+                        if (!string.IsNullOrEmpty(infoLog))
                         {
-                            GL.CompileShader(shaderHandle);
-                            string infoLog = GL.GetShaderInfoLog(shaderHandle);
-                            if (!string.IsNullOrEmpty(infoLog))
-                            {
-                                System.Console.Error.WriteLine(infoLog);
-                                throw new ShaderException(
-                                    "Could not compile shader", new System.Exception(infoLog));
-                            }
-                            GL.AttachShader(ShaderProgramHandle, shaderHandle);
+                            System.Console.Error.WriteLine(infoLog);
+                            throw new ShaderException(
+                                "Could not compile shader", new System.Exception(infoLog));
                         }
+                        GL.AttachShader(ShaderProgramHandle, shaderHandle);
+                    }
 
-                        GL.LinkProgram(ShaderProgramHandle);
-                    }
-                    else
-                    {
-                        // TODO: Convert SPIR-V to OpenTk/OpenGL ES 2 compatible shader akin to Veldrid.SPIRV, i.e. SPIR-V Cross
-                        throw new System.NotImplementedException("TODO: Convert SPIR-V to OpenTk/OpenGL ES 2 compatible shader");
-                        // Shaders = factory.CreateFromSpirv(vsDescription, fsDescription);
-                    }
+                    GL.LinkProgram(ShaderProgramHandle);
                 } finally {
                     _vertexShaderSource = null;
                     _fragmentShaderSource = null;
                 }
             };
             Resources.OnDispose = () => {
-                foreach (var shaderHandle in _shaderHandles)
+                foreach (var shaderHandle in _shaderHandles ?? new int[] {})
                 {
                     GL.DetachShader(ShaderProgramHandle, shaderHandle);
                     GL.DeleteShader(shaderHandle);
@@ -115,11 +108,11 @@ namespace Teraflop.Components
             }
             else if (assetDataLoader.Exists(AssetType.Shader, ShaderFilename))
             {
-                var shaderSource = ShaderImporter.Instance.Import(
+                var shaderSources = ShaderImporter.Instance.Import(
                     assetDataLoader.Load(AssetType.Shader, ShaderFilename)
                 );
-                var shaderSourceString = System.Text.Encoding.UTF8.GetString(shaderSource);
-                _vertexShaderSource = _fragmentShaderSource = shaderSourceString;
+                _vertexShaderSource = shaderSources[ShaderStages.Fragment];
+                _fragmentShaderSource = shaderSources[ShaderStages.Fragment];
             }
             else
             {

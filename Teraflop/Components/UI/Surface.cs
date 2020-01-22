@@ -9,7 +9,7 @@ using OpenTK.Graphics.ES20;
 
 namespace Teraflop.Components.UI
 {
-    public class Surface : ResourceComponent, IFramebufferSize, IReady, IUpdatable, IResource, IResourceLayout, IDrawAction
+    public class Surface : ResourceComponent, IFramebufferSize, IReady, IUpdatable, IResource, IResourceSet, IDrawAction
     {
         private int? _texture = null;
         private Size _size = new Size(0, 0);
@@ -43,7 +43,7 @@ namespace Teraflop.Components.UI
             }
         }
 
-        public ResourceLayoutElementDescription ResourceLayout { get; private set; }
+        public IEnumerable<ResourceLayoutElementDescription> ResourceLayout { get; private set; }
 
         public void Draw(Action drawDelegate)
         {
@@ -63,8 +63,10 @@ namespace Teraflop.Components.UI
 
         private void CreateTexture()
         {
-            this.ResourceLayout = new ResourceLayoutElementDescription(
-                        "SurfaceTexture", ResourceKind.Texture2D, ShaderStages.Fragment);
+            this.ResourceLayout = new ResourceLayoutElementDescription[] {
+                new ResourceLayoutElementDescription(
+                    "SurfaceTexture", ResourceKind.Texture2D, ShaderStages.Fragment)
+            };
 
             if (_texture.HasValue)
             {
@@ -92,6 +94,11 @@ namespace Teraflop.Components.UI
             }
 
             return destination;
+        }
+
+        public void BindResourceSet()
+        {
+            throw new NotImplementedException();
         }
     }
 }

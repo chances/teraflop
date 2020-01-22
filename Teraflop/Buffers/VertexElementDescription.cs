@@ -25,6 +25,11 @@ namespace Teraflop.Buffers
         public uint Offset;
 
         /// <summary>
+        /// The size in bytes of the element.
+        /// </summary>
+        public uint SizeInBytes => VertexLayoutHelpers.GetSizeInBytes(Format);
+
+        /// <summary>
         /// Constructs a new VertexElementDescription describing a per-vertex element.
         /// </summary>
         /// <param name="name">The name of the element.</param>

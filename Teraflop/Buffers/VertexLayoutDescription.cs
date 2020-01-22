@@ -10,7 +10,7 @@ namespace Teraflop.Buffers
     public struct VertexLayoutDescription
     {
         /// <summary>
-        /// The number of bytes in between successive elements in the Device Buffer.
+        /// The number of bytes inbetween successive elements in the Device Buffer.
         /// </summary>
         public uint Stride;
         /// <summary>
@@ -66,7 +66,7 @@ namespace Teraflop.Buffers
             uint computedStride = 0;
             for (int i = 0; i < elements.Length; i++)
             {
-                uint elementSize = VertexLayoutHelpers.GetSizeInBytes(elements[i].Format);
+                uint elementSize = elements[i].SizeInBytes;
                 if (elements[i].Offset != 0)
                 {
                     computedStride = elements[i].Offset + elementSize;

@@ -17,9 +17,9 @@ namespace Teraflop.Systems
         public override void Operate()
         {
             // TODO: Support second and more framebuffers
-            GL.ClearColor(Color4.Black);
-            GL.ClearDepth(1f);
-            GL.ClearStencil(0);
+            GL.Clear(ClearBufferMask.ColorBufferBit |
+                ClearBufferMask.DepthBufferBit |
+                ClearBufferMask.StencilBufferBit);
 
             var renderables = World.Where(CanOperateOn)
                 .GroupBy(entity =>
@@ -29,7 +29,7 @@ namespace Teraflop.Systems
                         entity.GetComponent<Material>(),
                         mesh.FrontFace,
                         mesh.PrimitiveTopology,
-                        entity.GetComponent<IResourceLayout>().ResourceLayout,
+                        entity.GetComponent<IResourceSet>().ResourceLayout,
                         mesh.VertexBuffer.LayoutDescription
                     );
                 });
@@ -51,17 +51,31 @@ namespace Teraflop.Systems
 
                 var meshesWithUniforms = renderable.Select(entity => (
                     entity.GetComponent<MeshData>(),
-                    entity.GetComponent<IResourceLayout>().ResourceLayout
+                    entity.GetComponent<IResourceSet>().ResourceLayout
                 ));
                 foreach (var meshAndUniforms in meshesWithUniforms)
                 {
                     var mesh = meshAndUniforms.Item1;
+                    var uniforms = meshAndUniforms.ResourceLayout.ToList();
                     var vertexBuffer = mesh.VertexBuffer;
+                    var bufferLayout = vertexBuffer.LayoutDescription;
 
+                    // Bind vertex data
                     GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBuffer.VertexBufferHandle);
-                    // Change this for mesh.Indices?
-                    GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
-                    GL.EnableVertexAttribArray(0);
+                    // TODO: Change this for mesh.Indices?
+                    for (int i = 0; i < bufferLayout.Elements.Length; i++)
+                    {
+                        var element = bufferLayout.Elements[i];
+                        GL.VertexAttribPointer(i, (int) element.SizeInBytes,
+                            // TODO: Convert element.Format to VertexAttribPointerType
+                            VertexAttribPointerType.Float, false,
+                            (int) bufferLayout.Stride, (int) element.Offset);
+                        GL.EnableVertexAttribArray(i);
+                        GL.BindAttribLocation(material.ShaderProgramHandle, i, element.Name);
+                        GL.LinkProgram(material.ShaderProgramHandle);
+                    }
+
+                    // Bind uniforms
 
                     // TODO: Group renderables by MeshData and figure out instance uniforms
 
@@ -80,7 +94,7 @@ namespace Teraflop.Systems
         /// <description><see cref="MeshData"/></description>
         /// </item>
         /// <item>
-        /// <description>and <see cref="IResourceLayout"/></description>
+        /// <description>and <see cref="IResourceSet"/></description>
         /// </item>
         /// </list>
         /// </remarks>
@@ -90,8 +104,7 @@ namespace Teraflop.Systems
         (
             typeof(Material),
             typeof(MeshData),
-            typeof(IResourceLayout)
-        ) && entity.HasTag(Tags.Initialized)
-        && entity.GetComponent<IResourceLayout>().ResourceLayout.Kind == ResourceKind.UniformBuffer;
+            typeof(IResourceSet)
+        ) && entity.HasTag(Tags.Initialized);
     }
 }

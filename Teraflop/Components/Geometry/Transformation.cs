@@ -50,7 +50,6 @@ namespace Teraflop.Components.Geometry
         }
 
         #region Veldrid
-        public UniformBuffer<Matrix4x4> ModelTransformation => _model.Buffer;
         public UniformBuffer<Matrix4x4> CameraViewProjection { protected get; set; }
         public IEnumerable<ResourceLayoutElementDescription> ResourceLayoutElements =>
             new ResourceLayoutElementDescription[] {
@@ -59,9 +58,12 @@ namespace Teraflop.Components.Geometry
                 new ResourceLayoutElementDescription("ViewProj", ResourceKind.UniformBuffer,
                     ShaderStages.Vertex)
             };
+        public IEnumerable<BindableResource> ResourceSet => new BindableResource[] {
+          _model.Buffer.DeviceBuffer, CameraViewProjection.DeviceBuffer
+        };
         #endregion
 
-        public bool AreDependenciesSatisfied => CameraViewProjection != null;
+        public bool AreDependenciesSatisfied => CameraViewProjection?.Initialized ?? false;
 
         public void Translate(float x = 0, float y = 0, float z = 0)
         {

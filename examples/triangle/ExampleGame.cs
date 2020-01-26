@@ -1,7 +1,6 @@
 using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Teraflop.Assets;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;

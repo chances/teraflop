@@ -5,6 +5,7 @@ using Teraflop.Assets;
 using Teraflop.Buffers.Uniforms;
 using Teraflop.Components;
 using Teraflop.Components.Geometry;
+using Teraflop.Components.Receivers;
 using Teraflop.ECS;
 using Teraflop.Entities;
 using Veldrid;
@@ -21,11 +22,11 @@ namespace Teraflop.Examples.Triangle
                 Console.WriteLine(resourceName);
             }
 
-            new Triangle().Run();
+            new TriangleExample().Run();
         }
     }
 
-    internal class Triangle : ExampleGame
+    internal class TriangleExample : ExampleGame
     {
         protected override void Initialize()
         {
@@ -38,16 +39,17 @@ namespace Teraflop.Examples.Triangle
             World.Add(EntityFactory.Create(
                 new Primitives.Triangle("Triangle").MeshData,
                 flatMaterial,
-                new TriangleResource(RgbaFloat.Green)
+                new Transformation(),
+                new Triangle(RgbaFloat.Green)
             ));
         }
     }
 
-    internal class TriangleResource : Transformation, IResourceSet
+    internal class Triangle : ResourceComponent, IModelTransformation, IDependencies, IResourceSet
     {
         private UniformColor _color = new UniformColor();
 
-        public TriangleResource(RgbaFloat color)
+        public Triangle(RgbaFloat color) : base(nameof(Triangle))
         {
             Resources.OnInitialize += (_, e) => {
                 var factory = e.ResourceFactory;
@@ -55,17 +57,12 @@ namespace Teraflop.Examples.Triangle
                 _color.Buffer.UniformData = color;
 
                 ResourceLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(
-                    ResourceLayoutElements.Append(
-                        new ResourceLayoutElementDescription("Color", ResourceKind.UniformBuffer,
-                            ShaderStages.Fragment)
-                    ).ToArray()
+                    ModelTransformation.ResourceLayout.Append(_color.LayoutDescription).ToArray()
                 ));
 
                 ResourceSet = factory.CreateResourceSet(new ResourceSetDescription(
                     ResourceLayout,
-                    ModelTransformation.DeviceBuffer,
-                    CameraViewProjection.DeviceBuffer,
-                    _color.Buffer.DeviceBuffer
+                    ModelTransformation.ResourceSet.Append(_color.Buffer.DeviceBuffer).ToArray()
                 ));
             };
             Resources.OnDispose += (_, __) => {
@@ -73,8 +70,10 @@ namespace Teraflop.Examples.Triangle
             };
         }
 
-        public ResourceLayout ResourceLayout { get; private set; }
+        public ModelTransformation ModelTransformation { private get; set; }
+        public bool AreDependenciesSatisfied => ModelTransformation != null;
 
+        public ResourceLayout ResourceLayout { get; private set; }
         public ResourceSet ResourceSet { get; private set; }
     }
 }

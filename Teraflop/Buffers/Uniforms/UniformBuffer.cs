@@ -20,7 +20,7 @@ namespace Teraflop.Buffers.Uniforms
 
         public T UniformData
         {
-            private get => _uniformData;
+            get => _uniformData;
             set
             {
                 _uniformData = value;

@@ -1,28 +1,41 @@
+using System.Collections.Generic;
 using System.Numerics;
+using Teraflop.Buffers.Uniforms;
+using Teraflop.Components.Receivers;
 using Teraflop.ECS;
-using JetBrains.Annotations;
+using Veldrid;
 
 namespace Teraflop.Components.Geometry
 {
-    public class Transformation : Component
+    public class Transformation : ResourceComponent, ICameraViewProjection
     {
         public static Transformation Identity = new Transformation();
-        private Matrix4x4 _value = Matrix4x4.Identity;
+        private UniformModelTransformation _model =
+            new UniformModelTransformation(Matrix4x4.Identity);
 
         public Transformation() : base(nameof(Transformation))
         {
+            Resources.OnInitialize += (_, e) => {
+              _model.Buffer.Initialize(e.ResourceFactory, e.GraphicsDevice);
+            };
+            Resources.OnDispose += (_, __) => _model.Buffer.Dispose();
         }
 
         public Matrix4x4 Value
         {
-            get => _value;
-            set => _value = value;
+            get => _model.Buffer.UniformData;
+            set => _model.Buffer.UniformData = value;
         }
 
         public Vector3 Translation
         {
-            get => _value.Translation;
-            set => _value.Translation = value;
+            get => Value.Translation;
+            set
+            {
+                var transformation = Value;
+                transformation.Translation = value;
+                Value = transformation;
+            }
         }
 
         public Quaternion Rotation
@@ -31,24 +44,42 @@ namespace Teraflop.Components.Geometry
             set
             {
                 var translation = Translation;
-                _value = Matrix4x4.Transform(Matrix4x4.Identity, value);
-                _value.Translation = translation;
+                Value = Matrix4x4.Transform(Matrix4x4.Identity, value);
+                Translate(translation);
             }
         }
 
+        #region Veldrid
+        public UniformBuffer<Matrix4x4> ModelTransformation => _model.Buffer;
+        public UniformBuffer<Matrix4x4> CameraViewProjection { protected get; set; }
+        public IEnumerable<ResourceLayoutElementDescription> ResourceLayoutElements =>
+            new ResourceLayoutElementDescription[] {
+                new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer,
+                    ShaderStages.Vertex),
+                new ResourceLayoutElementDescription("ViewProj", ResourceKind.UniformBuffer,
+                    ShaderStages.Vertex)
+            };
+        #endregion
+
+        public bool AreDependenciesSatisfied => CameraViewProjection != null;
+
         public void Translate(float x = 0, float y = 0, float z = 0)
         {
-            _value.Translation += new Vector3(x, y, z);
+            var value = Value;
+            value.Translation += new Vector3(x, y, z);
+            Value = value;
         }
 
         public void Translate(Vector3 translation)
         {
-            _value.Translation += translation;
+            var value = Value;
+            value.Translation += translation;
+            Value = value;
         }
 
         public void Rotate(Quaternion rotation)
         {
-            _value = Matrix4x4.Transform(_value, rotation);
+            Value = Matrix4x4.Transform(Value, rotation);
         }
     }
 }

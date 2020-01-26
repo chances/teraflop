@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Numerics;
+using System.Linq;
 using System.Reflection;
 using Teraflop.Assets;
 using Teraflop.Buffers.Uniforms;
 using Teraflop.Components;
+using Teraflop.Components.Geometry;
 using Teraflop.ECS;
 using Teraflop.Entities;
 using Veldrid;
@@ -32,6 +32,8 @@ namespace Teraflop.Examples.Triangle
             Title = "Triangle";
             AssetDirectoryPaths.Add(AssetType.Shader, "triangle.Content.Shaders");
 
+            World.Add(EntityFactory.Create(new Camera()));
+
             var flatMaterial = new Material("FlatMaterial", "flat.hlsl");
             World.Add(EntityFactory.Create(
                 new Primitives.Triangle("Triangle").MeshData,
@@ -41,44 +43,32 @@ namespace Teraflop.Examples.Triangle
         }
     }
 
-    internal class TriangleResource : ResourceComponent, IResourceSet
+    internal class TriangleResource : Transformation, IResourceSet
     {
-        private UniformModelTransformation _model =
-            new UniformModelTransformation(Matrix4x4.Identity);
-        private UniformModelTransformation _view =
-            new UniformModelTransformation(Matrix4x4.Identity);
         private UniformColor _color = new UniformColor();
 
-        public TriangleResource(RgbaFloat color) : base("Triangle")
+        public TriangleResource(RgbaFloat color)
         {
-            Resources.OnInitialize = (factory, graphicsDevice) => {
-                _model.Buffer.Initialize(factory, graphicsDevice);
-                _view.Buffer.Initialize(factory, graphicsDevice);
-                _color.Buffer.Initialize(factory, graphicsDevice);
-
+            Resources.OnInitialize += (_, e) => {
+                var factory = e.ResourceFactory;
+                _color.Buffer.Initialize(e.ResourceFactory, e.GraphicsDevice);
                 _color.Buffer.UniformData = color;
 
                 ResourceLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription[] {
-                        new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer,
-                            ShaderStages.Vertex),
-                        new ResourceLayoutElementDescription("ViewProj", ResourceKind.UniformBuffer,
-                            ShaderStages.Vertex),
+                    ResourceLayoutElements.Append(
                         new ResourceLayoutElementDescription("Color", ResourceKind.UniformBuffer,
                             ShaderStages.Fragment)
-                    }
+                    ).ToArray()
                 ));
 
                 ResourceSet = factory.CreateResourceSet(new ResourceSetDescription(
                     ResourceLayout,
-                    _model.Buffer.DeviceBuffer,
-                    _view.Buffer.DeviceBuffer,
+                    ModelTransformation.DeviceBuffer,
+                    CameraViewProjection.DeviceBuffer,
                     _color.Buffer.DeviceBuffer
                 ));
             };
-            Resources.OnDispose = () => {
-                _model.Buffer.Dispose();
-                _view.Buffer.Dispose();
+            Resources.OnDispose += (_, __) => {
                 _color.Buffer.Dispose();
             };
         }

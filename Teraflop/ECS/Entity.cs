@@ -42,10 +42,11 @@ namespace Teraflop.ECS
 
         public void Add(Component component)
         {
-            if (_components.ContainsKey(component.Name) || _components.Values.Contains(component))
-                _components[component.Name] = component;
+            var name = $"{component.GetType().Name}:{component.Name}";
+            if (_components.ContainsKey(name) || _components.Values.Contains(component))
+                _components[name] = component;
             else
-                _components.Add(component.Name, component);
+                _components.Add(name, component);
         }
 
         public void AddTag(Tags tag)

@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-using Teraflop.Components;
 using Veldrid;
 
 namespace Teraflop.Buffers.Uniforms

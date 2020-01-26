@@ -1,4 +1,3 @@
-using System;
 using Veldrid;
 
 namespace Teraflop.Components

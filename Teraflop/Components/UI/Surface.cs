@@ -19,17 +19,17 @@ namespace Teraflop.Components.UI
 
         public Surface() : base("UI Surface")
         {
-            Resources.OnInitialize = (factory, device) => {
-                _device = device;
+            Resources.OnInitialize += (_, e) => {
+                _device = e.GraphicsDevice;
 
                 _size = new Size(
-                    (int) device.SwapchainFramebuffer.Width,
-                    (int) device.SwapchainFramebuffer.Height
+                    (int) _device.SwapchainFramebuffer.Width,
+                    (int) _device.SwapchainFramebuffer.Height
                 );
 
-                _sampler = device.LinearSampler;
+                _sampler = _device.LinearSampler;
 
-                ResourceLayout = factory.CreateResourceLayout(
+                ResourceLayout = e.ResourceFactory.CreateResourceLayout(
                     new ResourceLayoutDescription(
                         new ResourceLayoutElementDescription(
                             "SurfaceTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
@@ -38,7 +38,7 @@ namespace Teraflop.Components.UI
 
                 CreateTexture();
             };
-            Resources.OnDispose = () => {
+            Resources.OnDispose += (_, __) => {
                 _textureView.Dispose();
                 _texture.Dispose();
                 ResourceSet.Dispose();

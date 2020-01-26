@@ -26,7 +26,8 @@ namespace Teraflop.Components
             DepthClipEnabled = true;
             BlendState = DefaultBlendState;
 
-            Resources.OnInitialize = (factory, _) => {
+            Resources.OnInitialize += (_, e) => {
+                var factory = e.ResourceFactory;
                 // Compile shaders
                 try {
                     var vsDescription = new ShaderDescription(ShaderStages.Vertex, _vertexShaderSource, "VS");
@@ -47,7 +48,7 @@ namespace Teraflop.Components
                     _fragmentShaderSource = null;
                 }
             };
-            Resources.OnDispose = () => {
+            Resources.OnDispose += (_, __) => {
                 foreach (var shader in Shaders)
                 {
                     shader.Dispose();

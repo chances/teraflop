@@ -6,9 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../../Teraflop/Teraflop.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Veldrid.StartupUtilities" Version="4.7.0" />
+    <ProjectReference Include="../example/example.csproj" />
   </ItemGroup>
 
   <ItemGroup>

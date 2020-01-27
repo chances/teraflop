@@ -1,6 +1,5 @@
 using System;
 using System.Numerics;
-using Teraflop;
 using Teraflop.Components;
 using Teraflop.Components.Receivers;
 using Teraflop.Geometry;

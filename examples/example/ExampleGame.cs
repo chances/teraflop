@@ -7,11 +7,11 @@ using Veldrid.StartupUtilities;
 
 namespace Teraflop.Examples
 {
-    internal abstract class ExampleGame : Game
+    public abstract class Example : Game
     {
         private Sdl2Window _window;
 
-        public ExampleGame()
+        public Example()
         {
             foreach (var resourceName in Assembly.GetExecutingAssembly().GetManifestResourceNames())
             {
@@ -21,7 +21,6 @@ namespace Teraflop.Examples
 
         public string Title { get; set; } = "Example";
         public bool DebugMode { get; set; } = true;
-        public static TinyIoC.TinyIoCContainer Services => TinyIoC.TinyIoCContainer.Current;
 
         protected override GraphicsDevice CreateGraphicsDevice()
         {
@@ -59,8 +58,6 @@ namespace Teraflop.Examples
                 : isLinux && defaultBackend == GraphicsBackend.Vulkan
                     ? VeldridStartup.CreateVulkanGraphicsDevice(options, _window)
                     : VeldridStartup.CreateDefaultOpenGLGraphicsDevice(options, _window, GraphicsBackend.OpenGL);
-
-            Services.Register<BufferFactory>(new BufferFactory(device.ResourceFactory));
 
             return device;
         }

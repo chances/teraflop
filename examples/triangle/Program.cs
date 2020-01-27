@@ -19,11 +19,11 @@ namespace Teraflop.Examples.Triangle
                 Console.WriteLine(resourceName);
             }
 
-            new TriangleExample().Run();
+            new Triangle().Run();
         }
     }
 
-    internal class TriangleExample : ExampleGame
+    internal class Triangle : Example
     {
         protected override void Initialize()
         {

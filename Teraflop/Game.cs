@@ -32,6 +32,7 @@ namespace Teraflop
 
         protected World World { get; }
 
+        public static TinyIoC.TinyIoCContainer Services => TinyIoC.TinyIoCContainer.Current;
         public bool IsActive { get; private set; }
         public bool LimitFrameRate { get; }
         public double DesiredFrameLengthSeconds { get; }
@@ -69,6 +70,8 @@ namespace Teraflop
             IsActive = true;
 
             GraphicsDevice = CreateGraphicsDevice();
+            Services.Register<Services.BufferFactory>(
+                new Services.BufferFactory(GraphicsDevice.ResourceFactory));
 
             Initialize();
             InitializeWorld();

@@ -1,6 +1,6 @@
 using Veldrid;
 
-namespace Teraflop.Examples
+namespace Teraflop.Services
 {
     public abstract class ResourceFactory
     {

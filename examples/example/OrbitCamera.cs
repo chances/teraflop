@@ -5,7 +5,7 @@ using Teraflop.Components.Receivers;
 using Teraflop.Geometry;
 using Teraflop.Input;
 
-namespace Teraflop.Examples.Triangle
+namespace Teraflop.Examples
 {
     public class OrbitCamera : Camera, IUserInput
     {

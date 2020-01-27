@@ -26,6 +26,7 @@ namespace Teraflop.Examples.Triangle
                 Console.WriteLine(assetPath);
             }
         }
+
         protected override void Initialize()
         {
             Title = "Triangle";

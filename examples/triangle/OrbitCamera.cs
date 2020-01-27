@@ -8,7 +8,7 @@ using Teraflop.Input;
 
 namespace Teraflop.Examples.Triangle
 {
-    public class OrbitCamera : Camera, IKeyboardInput
+    public class OrbitCamera : Camera, IUserInput
     {
         private const float MinZoom = 1;
         private const float MaxZoom = 200;
@@ -40,10 +40,28 @@ namespace Teraflop.Examples.Triangle
                 UpdatePosition(YawPitchRoll);
             }
         }
+
+        public MouseState MouseState { private get; set; }
         public KeyboardState KeyboardState { private get; set; }
 
-        private bool ShouldZoomIn => KeyboardState.IsKeyDown(Key.Plus) || KeyboardState.IsKeyDown(Key.KeypadPlus);
-        private bool ShouldZoomOut => KeyboardState.IsKeyDown(Key.Minus) || KeyboardState.IsKeyDown(Key.KeypadMinus);
+        private bool ShouldZoomIn
+        {
+            get
+            {
+                var viaMouse = MouseState.ScrollWheelValue > 0;
+                var viaKeyboard = KeyboardState.IsKeyDown(Key.Plus) || KeyboardState.IsKeyDown(Key.KeypadPlus);
+                return viaMouse || viaKeyboard;
+            }
+        }
+        private bool ShouldZoomOut
+        {
+            get
+            {
+                var viaMouse = MouseState.ScrollWheelValue < 0;
+                var viaKeyboard = KeyboardState.IsKeyDown(Key.Minus) || KeyboardState.IsKeyDown(Key.KeypadMinus);
+                return viaMouse || viaKeyboard;
+            }
+        }
 
         private bool ShouldOrbitLeft => KeyboardState.IsKeyDown(Key.Left) && !KeyboardState.IsKeyDown(Key.Right);
         private bool ShouldOrbitRight => KeyboardState.IsKeyDown(Key.Right) && !KeyboardState.IsKeyDown(Key.Left);

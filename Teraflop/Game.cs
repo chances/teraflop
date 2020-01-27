@@ -122,7 +122,7 @@ namespace Teraflop
         protected virtual void Update(GameTime gameTime)
         {
             new ResourceInitializer(World, ResourceFactory, GraphicsDevice).Operate();
-            new KeyboardProvider(World, KeyboardState).Operate();
+            new InputProvider(World, MouseState, KeyboardState).Operate();
             new Composer(World).Operate();
             // TODO: Refactor other Receiver systems to something like an ActionSystem<IReceiver>
             if (Camera != null)

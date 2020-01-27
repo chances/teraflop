@@ -28,7 +28,7 @@ namespace Teraflop.Examples.Triangle
         protected override void Initialize()
         {
             Title = "Triangle";
-            AssetDirectoryPaths.Add(AssetType.Shader, "triangle.Content.Shaders");
+            AssetSources.Add(new AssemblyAssetSource());
 
             World.Add(EntityFactory.Create(new OrbitCamera()));
 

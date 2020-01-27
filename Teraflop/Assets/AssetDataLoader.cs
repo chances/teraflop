@@ -1,59 +1,58 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using JetBrains.Annotations;
 using LiteGuard;
 
 namespace Teraflop.Assets
 {
-    public class AssetDataLoader
+    internal class AssetDataLoader : IAssetSource
     {
-        private readonly Assembly _gameAssembly;
-        private readonly Dictionary<AssetType, string> _assetDirectoryPaths;
-        private readonly string[] _assetFilenames;
+        private readonly Dictionary<string, IAssetSource> _assetFiles =
+            new Dictionary<string, IAssetSource>();
 
-        public AssetDataLoader(Assembly gameAssembly, Dictionary<AssetType, string> assetDirectoryPaths)
+        public AssetDataLoader()
         {
-            _gameAssembly = gameAssembly;
-            _assetDirectoryPaths = assetDirectoryPaths;
-            _assetFilenames = gameAssembly.GetManifestResourceNames();
+            AssetSources.CollectionChanged += (_, e) => {
+                var oldItems = e.OldItems?.Cast<IAssetSource>() ?? new List<IAssetSource>();
+                var newItems = e.NewItems?.Cast<IAssetSource>() ?? new List<IAssetSource>();
+                oldItems.SelectMany(source => source.AssetFilenames).ToList()
+                    .ForEach(file => _assetFiles.Remove(file));
+                newItems.ToList().ForEach(source => source.AssetFilenames.ToList()
+                    .ForEach(file => _assetFiles[file] = source));
+            };
         }
+
+        public ObservableCollection<IAssetSource> AssetSources { get; } =
+            new ObservableCollection<IAssetSource>();
+
+        public IEnumerable<string> AssetFilenames => _assetFiles.Keys;
 
         /// <summary>
-        /// Load an asset from the asset library given a <paramref name="type"/> and a <paramref name="filename"/>.
+        /// Load an asset from the asset library given a <paramref name="type"/> and a <paramref name="filePath"/>.
         /// </summary>
         /// <param name="type"></param>
-        /// <param name="filename"></param>
+        /// <param name="filePath"></param>
         /// <returns><see cref="Stream"/> of loaded asset's data</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="filename"/> is null</exception>
-        /// <exception cref="InvalidOperationException">Asset type doesn't exist in asset directory dictionary</exception>
-        /// <exception cref="FileNotFoundException">Given <paramref name="filename"/> doesn't exist in asset library</exception>
-        public Stream Load(AssetType type, [NotNull] string filename)
+        /// <exception cref="ArgumentNullException"><paramref name="filePath"/> is null</exception>
+        /// <exception cref="FileNotFoundException">Given <paramref name="filePath"/> doesn't exist in asset library</exception>
+        public Stream Load(AssetType type, [NotNull] string filePath)
         {
-            Guard.AgainstNullArgument(nameof(filename), filename);
-            if (!Exists(type, filename))
+            Guard.AgainstNullArgument(nameof(filePath), filePath);
+            if (!Exists(type, filePath))
             {
-                throw new FileNotFoundException($"{filename} not found in asset library");
+                throw new FileNotFoundException($"{type} '{filePath}' does not exist in the asset library");
             }
 
-            var assetFilePath = $"{_assetDirectoryPaths[type]}.{filename}";
-
-            return _gameAssembly.GetManifestResourceStream(assetFilePath);
+            return _assetFiles[filePath].Load(type, filePath);
         }
 
-        public bool Exists(AssetType type, [NotNull] string filename)
+        public bool Exists(AssetType type, [NotNull] string filePath)
         {
-            Guard.AgainstNullArgument(nameof(filename), filename);
-            if (!_assetDirectoryPaths.ContainsKey(type))
-            {
-                throw new InvalidOperationException($"{type} does not exist in the asset directory path dictionary");
-            }
-
-            var assetFilePath = $"{_assetDirectoryPaths[type]}.{filename}";
-
-            return _assetFilenames.Contains(assetFilePath);
+            Guard.AgainstNullArgument(nameof(filePath), filePath);
+            return _assetFiles.ContainsKey(filePath);
         }
     }
 }

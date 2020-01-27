@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 using Assimp;
 using Assimp.Configs;
 using Teraflop.Buffers;
@@ -22,7 +23,7 @@ namespace Teraflop.Assets
         private Scene _scene;
         private Vector3 _sceneCenter, _sceneMin, _sceneMax;
 
-        public MeshData<VertexPositionNormal> Import(Stream assetData)
+        public Task<MeshData<VertexPositionNormal>> Import(Stream assetData)
         {
             var importer = new AssimpContext();
             importer.SetConfig(new SortByPrimitiveTypeConfig(PrimitiveType.Polygon | PrimitiveType.Line));
@@ -40,9 +41,10 @@ namespace Teraflop.Assets
                 indices.AddRange(mesh.GetUnsignedIndices().Cast<ushort>());
             }
 
-            return new MeshData<VertexPositionNormal>(_scene.RootNode.Name, new VertexBuffer<VertexPositionNormal>(
-                vertices.ToArray(),
-                indices.ToArray()));
+            var meshData = new MeshData<VertexPositionNormal>(
+                _scene.RootNode.Name,
+                new VertexBuffer<VertexPositionNormal>(vertices.ToArray(), indices.ToArray()));
+            return Task.FromResult(meshData);
         }
 
         private void ComputeBoundingBox()

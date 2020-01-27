@@ -7,10 +7,11 @@ using JetBrains.Annotations;
 using LiteGuard;
 using Veldrid;
 using Veldrid.SPIRV;
+using System.Threading.Tasks;
 
 namespace Teraflop.Components
 {
-    public class Material : Resource, IAsset, IDependencies
+    public class Material : Resource, IAssetSink, IDependencies
     {
         private static bool _isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         private byte[] _vertexShaderSource, _fragmentShaderSource;
@@ -71,31 +72,31 @@ namespace Teraflop.Components
         public bool AreDependenciesSatisfied =>
             _vertexShaderSource != null && _fragmentShaderSource != null;
 
-        public void LoadAssets(AssetDataLoader assetDataLoader)
+        public async Task LoadAssets(IAssetSource assetSource)
         {
             var shaderFilenameWithoutExtension = ShaderFilename.Split('.').FirstOrDefault();
             var compiledShadersExist = new string[] {
                 $"{shaderFilenameWithoutExtension}.vs.spirv",
                 $"{shaderFilenameWithoutExtension}.fs.spirv"
             }.Aggregate(true, (shadersExist, filename) =>
-                shadersExist && assetDataLoader.Exists(AssetType.Shader, filename)
+                shadersExist && assetSource.FileExists(filename)
             );
 
             if (!_isWindows && compiledShadersExist) {
                 // TODO: Wait for https://github.com/mellinoe/veldrid-spirv/pull/2 and remove this? Or keep em for mobile?
-                _vertexShaderSource = ShaderImporter.Instance.Import(assetDataLoader.Load(
+                _vertexShaderSource = await ShaderImporter.Instance.Import(assetSource.Load(
                     AssetType.Shader,
-                    $"{shaderFilenameWithoutExtension}.vs.spirv"
+                    assetSource.GetAbsolutePath($"{shaderFilenameWithoutExtension}.vs.spirv")
                 ));
-                _fragmentShaderSource = ShaderImporter.Instance.Import(assetDataLoader.Load(
+                _fragmentShaderSource = await ShaderImporter.Instance.Import(assetSource.Load(
                     AssetType.Shader,
-                    $"{shaderFilenameWithoutExtension}.fs.spirv"
+                    assetSource.GetAbsolutePath($"{shaderFilenameWithoutExtension}.fs.spirv")
                 ));
             }
-            else if (assetDataLoader.Exists(AssetType.Shader, ShaderFilename))
+            else if (assetSource.FileExists(ShaderFilename))
             {
-                var shaderSource = ShaderImporter.Instance.Import(
-                    assetDataLoader.Load(AssetType.Shader, ShaderFilename)
+                var shaderSource = await ShaderImporter.Instance.Import(
+                    assetSource.Load(AssetType.Shader, ShaderFilename)
                 );
                 _vertexShaderSource = _fragmentShaderSource = shaderSource;
             }

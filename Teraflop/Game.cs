@@ -25,7 +25,7 @@ namespace Teraflop
             LimitFrameRate = true;
             DesiredFrameLengthSeconds = 1.0 / 60.0;
 
-            _assetDataLoader = new AssetDataLoader(Assembly.GetCallingAssembly(), AssetDirectoryPaths);
+            _assetDataLoader = new AssetDataLoader();
         }
 
         private GameTime _gameTime;
@@ -44,7 +44,7 @@ namespace Teraflop
         public ResourceFactory ResourceFactory => GraphicsDevice.ResourceFactory;
         public Framebuffer Framebuffer => GraphicsDevice.SwapchainFramebuffer;
 
-        public Dictionary<AssetType, string> AssetDirectoryPaths { get; } = new Dictionary<AssetType, string>();
+        public IList<IAssetSource> AssetSources => _assetDataLoader.AssetSources;
 
         private TimeSpan TotalElapsedTime => _gameTime?.TotalGameTime ?? TimeSpan.Zero;
 

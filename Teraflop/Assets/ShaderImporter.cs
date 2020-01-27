@@ -1,4 +1,5 @@
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Teraflop.Assets
 {
@@ -6,12 +7,11 @@ namespace Teraflop.Assets
     {
         public static ShaderImporter Instance = new ShaderImporter();
 
-        public byte[] Import(Stream assetData)
+        public async Task<byte[]> Import(Stream assetData)
         {
             using (var stream = new MemoryStream())
             {
-                // TODO: Use CopyToAsync when we need "Loading..." screen
-                assetData.CopyTo(stream);
+                await assetData.CopyToAsync(stream);
                 return stream.ToArray();
             }
         }

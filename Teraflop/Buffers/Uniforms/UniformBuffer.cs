@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-using Teraflop.Components;
 using Veldrid;
 
 namespace Teraflop.Buffers.Uniforms
@@ -21,7 +20,7 @@ namespace Teraflop.Buffers.Uniforms
 
         public T UniformData
         {
-            private get => _uniformData;
+            get => _uniformData;
             set
             {
                 _uniformData = value;

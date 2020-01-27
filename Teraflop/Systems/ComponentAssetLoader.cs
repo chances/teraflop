@@ -1,10 +1,12 @@
+using System.Linq;
+using System.Threading.Tasks;
 using Teraflop.Assets;
 using Teraflop.Components;
 using Teraflop.ECS;
 
 namespace Teraflop.Systems
 {
-    public class ComponentAssetLoader : System<IAsset>
+    internal class ComponentAssetLoader : System<IAssetSink>
     {
         private readonly AssetDataLoader _assetDataLoader;
 
@@ -15,10 +17,12 @@ namespace Teraflop.Systems
 
         public override void Operate()
         {
-            foreach (var asset in OperableComponents)
-            {
-                asset.LoadAssets(_assetDataLoader);
-            }
+            var loadingTask = Task.WhenAll(OperableComponents
+                .Select(assetSink => assetSink.LoadAssets(_assetDataLoader))
+            );
+            loadingTask.GetAwaiter().OnCompleted(() => {
+                // TODO: Some kinda notifier for "Loading..." screens
+            });
         }
     }
 }

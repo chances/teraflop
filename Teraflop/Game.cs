@@ -25,13 +25,14 @@ namespace Teraflop
             LimitFrameRate = true;
             DesiredFrameLengthSeconds = 1.0 / 60.0;
 
-            _assetDataLoader = new AssetDataLoader(Assembly.GetCallingAssembly(), AssetDirectoryPaths);
+            _assetDataLoader = new AssetDataLoader();
         }
 
         private GameTime _gameTime;
 
         protected World World { get; }
 
+        public static TinyIoC.TinyIoCContainer Services => TinyIoC.TinyIoCContainer.Current;
         public bool IsActive { get; private set; }
         public bool LimitFrameRate { get; }
         public double DesiredFrameLengthSeconds { get; }
@@ -43,7 +44,7 @@ namespace Teraflop
         public ResourceFactory ResourceFactory => GraphicsDevice.ResourceFactory;
         public Framebuffer Framebuffer => GraphicsDevice.SwapchainFramebuffer;
 
-        public Dictionary<AssetType, string> AssetDirectoryPaths { get; } = new Dictionary<AssetType, string>();
+        public IList<IAssetSource> AssetSources => _assetDataLoader.AssetSources;
 
         private TimeSpan TotalElapsedTime => _gameTime?.TotalGameTime ?? TimeSpan.Zero;
 
@@ -69,6 +70,8 @@ namespace Teraflop
             IsActive = true;
 
             GraphicsDevice = CreateGraphicsDevice();
+            Services.Register<Services.BufferFactory>(
+                new Services.BufferFactory(GraphicsDevice.ResourceFactory));
 
             Initialize();
             InitializeWorld();
@@ -116,15 +119,18 @@ namespace Teraflop
         {
             MouseState = mouseState;
             KeyboardState = keyboardState;
-            // TODO: update input provider system for input receivers
         }
 
         protected virtual void Update(GameTime gameTime)
         {
-            new KeyboardProvider(World, KeyboardState).Operate();
-            new ModelTransformationProvider(World).Operate();
-            new ViewProjectionProvider(World, Camera?.ViewProjectionUniform ?? null).Operate();
             new ResourceInitializer(World, ResourceFactory, GraphicsDevice).Operate();
+            new InputProvider(World, MouseState, KeyboardState).Operate();
+            new Composer(World).Operate();
+            // TODO: Refactor other Receiver systems to something like an ActionSystem<IReceiver>
+            if (Camera != null)
+            {
+                new ViewProjectionProvider(World, Camera.ViewProjectionUniform).Operate();
+            }
             _framebufferSizeProvider.Operate();
 
             new ComponentUpdater(World).Operate(gameTime);

@@ -22,12 +22,12 @@ namespace Teraflop.Systems
 
         private new IEnumerable<Entity> OperableEntities => World
             .Where(entity => {
-                var hasResources = (entity.HasComponent<IResource>());
+                var hasResources = entity.HasComponent<IResource>();
                 var isEntityInitialized = entity.HasTag(Tags.Initialized);
-                var areAnyResourcesUninitialized = entity.HasComponent<IResource>() &&
+                var areAnyResourcesUninitialized = hasResources &&
                     entity.GetComponents<IResource>().Any(component => !component.Initialized);
 
-                return hasResources && (!isEntityInitialized || areAnyResourcesUninitialized);
+                return !isEntityInitialized || areAnyResourcesUninitialized;
             });
 
         private Dictionary<Entity, IEnumerable<InitializeAction>> OperableEntityInitializers =>

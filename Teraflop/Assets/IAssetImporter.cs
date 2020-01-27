@@ -1,9 +1,10 @@
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Teraflop.Assets
 {
-    public interface IAssetImporter<out T>
+    public interface IAssetImporter<T>
     {
-        T Import(Stream assetData);
+        Task<T> Import(Stream assetData);
     }
 }

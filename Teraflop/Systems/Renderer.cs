@@ -38,7 +38,7 @@ namespace Teraflop.Systems
                         entity.GetComponent<Material>(),
                         mesh.FrontFace,
                         mesh.PrimitiveTopology,
-                        entity.GetComponent<IResourceSet>().ResourceLayout,
+                        entity.GetComponent<IBindableResource>().ResourceLayout,
                         mesh.VertexBuffer.LayoutDescription
                     );
                 });
@@ -63,7 +63,7 @@ namespace Teraflop.Systems
 
                 var meshesWithUniforms = renderable.Select(entity => (
                     entity.GetComponent<MeshData>().VertexBuffer,
-                    entity.GetComponent<IResourceSet>().ResourceSet
+                    entity.GetComponent<IBindableResource>().ResourceSet
                 ));
                 foreach (var meshAndUniforms in meshesWithUniforms)
                 {
@@ -107,7 +107,7 @@ namespace Teraflop.Systems
         /// <description><see cref="MeshData"/></description>
         /// </item>
         /// <item>
-        /// <description>and <see cref="IResourceSet"/></description>
+        /// <description>and <see cref="IBindableResource"/></description>
         /// </item>
         /// </list>
         /// </remarks>
@@ -117,7 +117,7 @@ namespace Teraflop.Systems
         (
             typeof(Material),
             typeof(MeshData),
-            typeof(IResourceSet)
+            typeof(IBindableResource)
         ) && entity.HasTag(Tags.Initialized);
 
         private Pipeline CreatePipeline(

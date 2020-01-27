@@ -4,11 +4,10 @@ using System.Numerics;
 using Teraflop.Buffers.Uniforms;
 using Teraflop.Components.Receivers;
 using Teraflop.ECS;
-using Veldrid;
 
 namespace Teraflop.Components
 {
-    public class Camera : ResourceComponent, IFramebufferSize, IUpdatable
+    public class Camera : Resource, IFramebufferSize, IUpdatable
     {
         private UniformMatrix _viewProj;
         // TODO: Implement tweener from MonoGame.Extended.Tween
@@ -18,12 +17,12 @@ namespace Teraflop.Components
         {
 //            _tweener = new TweeningComponent(game, new AnimationComponent(game));
 
-            Resources.OnInitialize = (factory, device) => {
+            Resources.OnInitialize += (_, e) => {
+                var factory = e.ResourceFactory;
                 _viewProj = new UniformViewProjection(ViewProjection);
-                _viewProj.Buffer.Initialize(factory, device);
-
-                Resources.OnDispose = _viewProj.Buffer.Dispose;
+                _viewProj.Buffer.Initialize(factory, e.GraphicsDevice);
             };
+            Resources.OnDispose += (_, __) => _viewProj.Buffer.Dispose();
         }
 
         public Size FramebufferSize { get; set; } = new Size(960, 540);

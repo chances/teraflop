@@ -122,7 +122,9 @@ namespace Teraflop
         protected virtual void Update(GameTime gameTime)
         {
             new KeyboardProvider(World, KeyboardState).Operate();
+            // TODO: Refactor these Receiver systems to something like an ActionSystem<IReceiver>
             new ModelTransformationProvider(World).Operate();
+            new ColorProvider(World).Operate();
             new ViewProjectionProvider(World, Camera?.ViewProjectionUniform ?? null).Operate();
             new ResourceInitializer(World, ResourceFactory, GraphicsDevice).Operate();
             _framebufferSizeProvider.Operate();

@@ -40,38 +40,35 @@ namespace Teraflop.Examples.Triangle
                 new Primitives.Triangle("Triangle").MeshData,
                 flatMaterial,
                 new Transformation(),
-                new Triangle(RgbaFloat.Green)
+                new Components.Color(RgbaFloat.Green),
+                new Triangle()
             ));
         }
     }
 
-    internal class Triangle : ResourceComponent, IModelTransformation, IDependencies, IResourceSet
+    internal class Triangle : Resource, IModelTransformation, IColor, IDependencies, IBindableResource
     {
-        private UniformColor _color = new UniformColor();
-
-        public Triangle(RgbaFloat color) : base(nameof(Triangle))
+        public Triangle() : base(nameof(Triangle))
         {
             Resources.OnInitialize += (_, e) => {
                 var factory = e.ResourceFactory;
-                _color.Buffer.Initialize(e.ResourceFactory, e.GraphicsDevice);
-                _color.Buffer.UniformData = color;
 
+                var transform = ModelTransformation.Resources;
+                var color = Color.Resources;
                 ResourceLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(
-                    ModelTransformation.ResourceLayout.Append(_color.LayoutDescription).ToArray()
+                    transform.ResourceLayout.Concat(color.ResourceLayout).ToArray()
                 ));
-
                 ResourceSet = factory.CreateResourceSet(new ResourceSetDescription(
                     ResourceLayout,
-                    ModelTransformation.ResourceSet.Append(_color.Buffer.DeviceBuffer).ToArray()
+                    transform.ResourceSet.Concat(color.ResourceSet).ToArray()
                 ));
-            };
-            Resources.OnDispose += (_, __) => {
-                _color.Buffer.Dispose();
             };
         }
 
         public ModelTransformation ModelTransformation { private get; set; }
-        public bool AreDependenciesSatisfied => ModelTransformation != null;
+        public Components.Receivers.Color Color { private get; set; }
+        public bool AreDependenciesSatisfied =>
+          ModelTransformation != null && Color != null;
 
         public ResourceLayout ResourceLayout { get; private set; }
         public ResourceSet ResourceSet { get; private set; }

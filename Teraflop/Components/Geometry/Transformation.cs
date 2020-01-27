@@ -7,9 +7,8 @@ using Veldrid;
 
 namespace Teraflop.Components.Geometry
 {
-    public class Transformation : ResourceComponent, ICameraViewProjection
+    public class Transformation : ComposableResource, ICameraViewProjection
     {
-        public static Transformation Identity = new Transformation();
         private UniformModelTransformation _model =
             new UniformModelTransformation(Matrix4x4.Identity);
 
@@ -50,15 +49,15 @@ namespace Teraflop.Components.Geometry
         }
 
         #region Veldrid
-        public UniformBuffer<Matrix4x4> CameraViewProjection { protected get; set; }
-        public IEnumerable<ResourceLayoutElementDescription> ResourceLayoutElements =>
+        public UniformBuffer<Matrix4x4> CameraViewProjection { internal get; set; }
+        public override IEnumerable<ResourceLayoutElementDescription> ResourceLayout =>
             new ResourceLayoutElementDescription[] {
                 new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer,
                     ShaderStages.Vertex),
                 new ResourceLayoutElementDescription("ViewProj", ResourceKind.UniformBuffer,
                     ShaderStages.Vertex)
             };
-        public IEnumerable<BindableResource> ResourceSet => new BindableResource[] {
+        public override IEnumerable<BindableResource> ResourceSet => new BindableResource[] {
           _model.Buffer.DeviceBuffer, CameraViewProjection.DeviceBuffer
         };
         #endregion

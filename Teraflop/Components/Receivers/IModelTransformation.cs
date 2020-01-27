@@ -13,12 +13,8 @@ namespace Teraflop.Components.Receivers
     {
         public ModelTransformation(Transformation transformation)
         {
-            Transformation = transformation;
-            ResourceLayout = transformation.ResourceLayoutElements;
-            ResourceSet = transformation.ResourceSet;
+            Resources = transformation;
         }
-        public Transformation Transformation { get; }
-        public IEnumerable<ResourceLayoutElementDescription> ResourceLayout { get; }
-        public IEnumerable<BindableResource> ResourceSet { get; }
+        public IComposableResource Resources { get; }
     }
 }

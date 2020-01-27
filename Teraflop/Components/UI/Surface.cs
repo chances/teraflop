@@ -9,7 +9,7 @@ using Veldrid;
 
 namespace Teraflop.Components.UI
 {
-    public class Surface : ResourceComponent, IFramebufferSize, IReady, IUpdatable, IResourceSet, IDrawAction
+    public class Surface : Resource, IFramebufferSize, IReady, IUpdatable, IBindableResource, IDrawAction
     {
         private GraphicsDevice _device;
         private Texture _texture;

@@ -7,7 +7,7 @@ using Teraflop.ECS;
 
 namespace Teraflop.Components
 {
-    public class Camera : ResourceComponent, IFramebufferSize, IUpdatable
+    public class Camera : Resource, IFramebufferSize, IUpdatable
     {
         private UniformMatrix _viewProj;
         // TODO: Implement tweener from MonoGame.Extended.Tween

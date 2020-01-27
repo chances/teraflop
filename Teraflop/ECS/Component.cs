@@ -1,6 +1,4 @@
-﻿using Teraflop.Components;
-using JetBrains.Annotations;
-using Veldrid;
+﻿using JetBrains.Annotations;
 
 namespace Teraflop.ECS
 {
@@ -12,24 +10,5 @@ namespace Teraflop.ECS
         }
 
         public string Name { get; set; }
-    }
-
-    public abstract class ResourceComponent : Component, IResource
-    {
-        protected ResourceComponent(string name) : base(name)
-        {
-        }
-
-        protected Resources Resources { get; } = new Resources();
-
-        public bool Initialized => Resources.Initialized;
-
-        public void Initialize(ResourceFactory factory, GraphicsDevice device) =>
-            Resources.Initialize(factory, device);
-
-        public void Dispose()
-        {
-            Resources.Dispose();
-        }
     }
 }

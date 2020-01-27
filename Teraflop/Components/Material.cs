@@ -10,7 +10,7 @@ using Veldrid.SPIRV;
 
 namespace Teraflop.Components
 {
-    public class Material : ResourceComponent, IAsset, IDependencies
+    public class Material : Resource, IAsset, IDependencies
     {
         private static bool _isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         private byte[] _vertexShaderSource, _fragmentShaderSource;

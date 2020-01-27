@@ -30,11 +30,11 @@ namespace Teraflop.Examples.Triangle
             Title = "Triangle";
             AssetDirectoryPaths.Add(AssetType.Shader, "triangle.Content.Shaders");
 
-            World.Add(EntityFactory.Create(new Camera()));
+            World.Add(EntityFactory.Create(new OrbitCamera()));
 
             var flatMaterial = new Material("FlatMaterial", "flat.hlsl");
             World.Add(EntityFactory.Create(
-                new Primitives.Triangle("Triangle").MeshData,
+                new Primitives.Triangle("Triangle", doubleSided: true).MeshData,
                 flatMaterial,
                 new Transformation(),
                 new Color(RgbaFloat.Green),

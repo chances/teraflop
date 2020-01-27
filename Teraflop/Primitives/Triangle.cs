@@ -7,10 +7,14 @@ namespace Teraflop.Primitives
 {
     public class Triangle : IPrimitive
     {
-        public Triangle(string name)
+        public Triangle(string name, bool doubleSided = false)
         {
             var builder = new MeshBuilder()
                 .WithVertices(vertices).WithIndices(new ushort[] { 0, 1, 2 });
+            if (doubleSided)
+            {
+                builder.WithIndices(new ushort[] { 0, 1, 2, 2, 1, 0 });
+            }
 
             MeshData = builder.Build<VertexPositionNormal>(name);
         }

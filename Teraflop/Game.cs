@@ -119,7 +119,6 @@ namespace Teraflop
         {
             MouseState = mouseState;
             KeyboardState = keyboardState;
-            // TODO: update input provider system for input receivers
         }
 
         protected virtual void Update(GameTime gameTime)

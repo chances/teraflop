@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Reflection;
-using Teraflop.Assets;
+using System.Linq;
 using Teraflop.Components;
 using Teraflop.Components.Geometry;
 using Teraflop.ECS;
@@ -13,22 +12,23 @@ namespace Teraflop.Examples.Triangle
     {
         static void Main(string[] args)
         {
-            // Print all embedded resources
-            foreach (var resourceName in Assembly.GetExecutingAssembly().GetManifestResourceNames())
-            {
-                Console.WriteLine(resourceName);
-            }
-
             new Triangle().Run();
         }
     }
 
     internal class Triangle : Example
     {
+        public Triangle()
+        {
+            // Print all assets in library
+            foreach (var assetPath in AssetSources.SelectMany(source => source.AssetFilenames))
+            {
+                Console.WriteLine(assetPath);
+            }
+        }
         protected override void Initialize()
         {
             Title = "Triangle";
-            AssetSources.Add(new AssemblyAssetSource());
 
             World.Add(EntityFactory.Create(new OrbitCamera()));
 

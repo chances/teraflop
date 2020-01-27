@@ -1,6 +1,6 @@
 using System;
-using System.Reflection;
 using System.Runtime.InteropServices;
+using Teraflop.Assets;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
@@ -13,10 +13,7 @@ namespace Teraflop.Examples
 
         public Example()
         {
-            foreach (var resourceName in Assembly.GetExecutingAssembly().GetManifestResourceNames())
-            {
-                Console.WriteLine(resourceName);
-            }
+            AssetSources.Add(new AssemblyAssetSource());
         }
 
         public string Title { get; set; } = "Example";

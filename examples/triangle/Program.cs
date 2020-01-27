@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
 using Teraflop.Assets;
-using Teraflop.Buffers.Uniforms;
 using Teraflop.Components;
 using Teraflop.Components.Geometry;
-using Teraflop.Components.Receivers;
 using Teraflop.ECS;
 using Teraflop.Entities;
 using Veldrid;
@@ -40,37 +37,9 @@ namespace Teraflop.Examples.Triangle
                 new Primitives.Triangle("Triangle").MeshData,
                 flatMaterial,
                 new Transformation(),
-                new Components.Color(RgbaFloat.Green),
-                new Triangle()
+                new Color(RgbaFloat.Green),
+                Composition.Of<Transformation, Color>("Triangle")
             ));
         }
-    }
-
-    internal class Triangle : Resource, IModelTransformation, IColor, IDependencies, IBindableResource
-    {
-        public Triangle() : base(nameof(Triangle))
-        {
-            Resources.OnInitialize += (_, e) => {
-                var factory = e.ResourceFactory;
-
-                var transform = ModelTransformation.Resources;
-                var color = Color.Resources;
-                ResourceLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(
-                    transform.ResourceLayout.Concat(color.ResourceLayout).ToArray()
-                ));
-                ResourceSet = factory.CreateResourceSet(new ResourceSetDescription(
-                    ResourceLayout,
-                    transform.ResourceSet.Concat(color.ResourceSet).ToArray()
-                ));
-            };
-        }
-
-        public ModelTransformation ModelTransformation { private get; set; }
-        public Components.Receivers.Color Color { private get; set; }
-        public bool AreDependenciesSatisfied =>
-          ModelTransformation != null && Color != null;
-
-        public ResourceLayout ResourceLayout { get; private set; }
-        public ResourceSet ResourceSet { get; private set; }
     }
 }

@@ -50,14 +50,15 @@ namespace Teraflop.Examples
                 PreferStandardClipSpaceYDirection = true
             };
 
-            var isWindowsOrMacOs = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
-                RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+            var isMacOs = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+            var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+            var isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
             var defaultBackend = VeldridStartup.GetPlatformDefaultBackend();
-            var device = isWindowsOrMacOs
+            var device = isWindows || isMacOs
                 ? VeldridStartup.CreateGraphicsDevice(_window, options)
-                : defaultBackend == GraphicsBackend.Vulkan
+                : isLinux && defaultBackend == GraphicsBackend.Vulkan
                     ? VeldridStartup.CreateVulkanGraphicsDevice(options, _window)
-                    : VeldridStartup.CreateDefaultOpenGLGraphicsDevice(options, _window, defaultBackend);
+                    : VeldridStartup.CreateDefaultOpenGLGraphicsDevice(options, _window, GraphicsBackend.OpenGL);
 
             Services.Register<BufferFactory>(new BufferFactory(device.ResourceFactory));
 

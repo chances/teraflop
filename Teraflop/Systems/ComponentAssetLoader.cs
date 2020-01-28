@@ -21,6 +21,11 @@ namespace Teraflop.Systems
                 .Select(assetSink => assetSink.LoadAssets(_assetDataLoader))
             );
             loadingTask.GetAwaiter().OnCompleted(() => {
+                var exception = loadingTask.Exception?.Flatten();
+                if (exception != null)
+                {
+                    throw exception.InnerExceptions.First();
+                }
                 // TODO: Some kinda notifier for "Loading..." screens
             });
         }

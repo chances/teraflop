@@ -18,11 +18,6 @@ namespace Teraflop.Assets
             return assetSource.AssetFilenames.Contains(filePath);
         }
 
-        public static bool FileExists(this IAssetSource assetSource, string fileName)
-        {
-            return assetSource.AssetFilenames.Any(filePath => filePath.EndsWith(fileName));
-        }
-
         public static string GetAbsolutePath(this IAssetSource assetSource, string fileName)
         {
             return assetSource.AssetFilenames.First(filePath => filePath.EndsWith(fileName));

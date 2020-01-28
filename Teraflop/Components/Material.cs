@@ -74,12 +74,13 @@ namespace Teraflop.Components
 
         public async Task LoadAssets(IAssetSource assetSource)
         {
-            var shaderFilenameWithoutExtension = ShaderFilename.Split('.').FirstOrDefault();
+            var shaderFileName = assetSource.GetAbsolutePath(ShaderFilename);
+            var shaderFilenameWithoutExtension = System.IO.Path.GetFileNameWithoutExtension(shaderFileName);
             var compiledShadersExist = new string[] {
                 $"{shaderFilenameWithoutExtension}.vs.spirv",
                 $"{shaderFilenameWithoutExtension}.fs.spirv"
-            }.Aggregate(true, (shadersExist, filename) =>
-                shadersExist && assetSource.FileExists(filename)
+            }.Aggregate(true, (shadersExist, fileName) =>
+                shadersExist && assetSource.Exists(assetSource.GetAbsolutePath(fileName))
             );
 
             if (!_isWindows && compiledShadersExist) {
@@ -93,10 +94,10 @@ namespace Teraflop.Components
                     assetSource.GetAbsolutePath($"{shaderFilenameWithoutExtension}.fs.spirv")
                 ));
             }
-            else if (assetSource.FileExists(ShaderFilename))
+            else if (assetSource.Exists(shaderFileName))
             {
                 var shaderSource = await ShaderImporter.Instance.Import(
-                    assetSource.Load(AssetType.Shader, ShaderFilename)
+                    assetSource.Load(AssetType.Shader, shaderFileName)
                 );
                 _vertexShaderSource = _fragmentShaderSource = shaderSource;
             }

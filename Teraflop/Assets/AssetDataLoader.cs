@@ -10,25 +10,25 @@ namespace Teraflop.Assets
 {
     internal class AssetDataLoader : IAssetSource
     {
-        private readonly Dictionary<string, IAssetSource> _assetFiles =
+        private readonly ObservableCollection<IAssetSource> _assetSources =
+            new ObservableCollection<IAssetSource>();
+        private readonly Dictionary<string, IAssetSource> _assetSourceByFile =
             new Dictionary<string, IAssetSource>();
 
         public AssetDataLoader()
         {
-            AssetSources.CollectionChanged += (_, e) => {
+            _assetSources.CollectionChanged += (_, e) => {
                 var oldItems = e.OldItems?.Cast<IAssetSource>() ?? new List<IAssetSource>();
                 var newItems = e.NewItems?.Cast<IAssetSource>() ?? new List<IAssetSource>();
                 oldItems.SelectMany(source => source.AssetFilenames).ToList()
-                    .ForEach(file => _assetFiles.Remove(file));
+                    .ForEach(file => _assetSourceByFile.Remove(file));
                 newItems.ToList().ForEach(source => source.AssetFilenames.ToList()
-                    .ForEach(file => _assetFiles[file] = source));
+                    .ForEach(file => _assetSourceByFile[file] = source));
             };
         }
 
-        public ObservableCollection<IAssetSource> AssetSources { get; } =
-            new ObservableCollection<IAssetSource>();
-
-        public IEnumerable<string> AssetFilenames => _assetFiles.Keys;
+        public IList<IAssetSource> AssetSources => _assetSources;
+        public IEnumerable<string> AssetFilenames => _assetSourceByFile.Keys;
 
         /// <summary>
         /// Load an asset from the asset library given a <paramref name="type"/> and a <paramref name="filePath"/>.
@@ -41,18 +41,12 @@ namespace Teraflop.Assets
         public Stream Load(AssetType type, [NotNull] string filePath)
         {
             Guard.AgainstNullArgument(nameof(filePath), filePath);
-            if (!Exists(type, filePath))
+            if (!this.Exists(filePath))
             {
                 throw new FileNotFoundException($"{type} '{filePath}' does not exist in the asset library");
             }
 
-            return _assetFiles[filePath].Load(type, filePath);
-        }
-
-        public bool Exists(AssetType type, [NotNull] string filePath)
-        {
-            Guard.AgainstNullArgument(nameof(filePath), filePath);
-            return _assetFiles.ContainsKey(filePath);
+            return _assetSourceByFile[filePath].Load(type, filePath);
         }
     }
 }

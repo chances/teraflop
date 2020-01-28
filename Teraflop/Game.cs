@@ -70,6 +70,8 @@ namespace Teraflop
             IsActive = true;
 
             GraphicsDevice = CreateGraphicsDevice();
+            Services.Register<Services.GraphicsDeviceFeatures>(
+                new Services.GraphicsDeviceFeatures(GraphicsDevice));
             Services.Register<Services.BufferFactory>(
                 new Services.BufferFactory(GraphicsDevice.ResourceFactory));
 

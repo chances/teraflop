@@ -29,7 +29,7 @@ namespace Teraflop.Examples
                 Y = windowPositionCentered,
                 WindowWidth = 960,
                 WindowHeight = 540,
-                WindowTitle = "Utility Grid"
+                WindowTitle = Title
             };
             _window = VeldridStartup.CreateWindow(ref windowCreateInfo);
             _window.Resized += () => _framebufferSizeProvider.Update(_window.Width, _window.Height);
@@ -50,10 +50,13 @@ namespace Teraflop.Examples
             var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
             var isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
             var defaultBackend = VeldridStartup.GetPlatformDefaultBackend();
-            var device = isWindows || isMacOs
-                ? VeldridStartup.CreateGraphicsDevice(_window, options)
-                : isLinux && defaultBackend == GraphicsBackend.Vulkan
-                    ? VeldridStartup.CreateVulkanGraphicsDevice(options, _window)
+            bool isVulkanSupported = GraphicsDevice.IsBackendSupported(GraphicsBackend.Vulkan);
+            var isVulkanAvailable = (isWindows && isVulkanSupported) ||
+                (isLinux && defaultBackend == GraphicsBackend.Vulkan);
+            var device = isVulkanAvailable
+                ? VeldridStartup.CreateVulkanGraphicsDevice(options, _window)
+                : isWindows
+                    ? VeldridStartup.CreateGraphicsDevice(_window, options)
                     : VeldridStartup.CreateDefaultOpenGLGraphicsDevice(options, _window, GraphicsBackend.OpenGL);
 
             return device;

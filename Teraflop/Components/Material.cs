@@ -34,7 +34,7 @@ namespace Teraflop.Components
                     var vsDescription = new ShaderDescription(ShaderStages.Vertex, _vertexShaderSource, "VS");
                     var fsDescription = new ShaderDescription(ShaderStages.Fragment, _fragmentShaderSource, "FS");
 
-                    if (_isWindows)
+                    if (_isWindows && !(e.GraphicsDevice.BackendType == GraphicsBackend.Vulkan))
                     {
                         var vs = factory.CreateShader(vsDescription);
                         var fs = factory.CreateShader(fsDescription);
@@ -83,7 +83,9 @@ namespace Teraflop.Components
                 shadersExist && assetSource.Exists(assetSource.GetAbsolutePath(fileName))
             );
 
-            if (!_isWindows && compiledShadersExist) {
+            var isVulkan = Game.Services.Resolve<Services.GraphicsDeviceFeatures>().BackendType == GraphicsBackend.Vulkan;
+
+            if ((!_isWindows || isVulkan) && compiledShadersExist) {
                 // TODO: Wait for https://github.com/mellinoe/veldrid-spirv/pull/2 and remove this? Or keep em for mobile?
                 _vertexShaderSource = await ShaderImporter.Instance.Import(assetSource.Load(
                     AssetType.Shader,

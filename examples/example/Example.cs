@@ -85,8 +85,9 @@ namespace Teraflop.Examples
             base.Update(gameTime);
 
             if (DebugMode) {
+                var backend = GraphicsDevice.BackendType;
                 var frameTime = Math.Round(gameTime.ElapsedGameTime.TotalMilliseconds, 1);
-                _window.Title = $"{Title} - {frameTime} ms - {FramesPerSecond} fps";
+                _window.Title = $"{Title} - {backend} - {frameTime} ms - {FramesPerSecond} fps";
             }
         }
     }

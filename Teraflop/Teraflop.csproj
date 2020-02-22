@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,6 +10,6 @@
     <PackageReference Include="LiteGuard" Version="2.2.0" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
     <PackageReference Include="OpenTK.NetStandard" Version="1.0.7-prerelease" />
-    <PackageReference Include="WaveEngine.HLSLEverywhere" Version="3.0.0.3716-preview2" />
+    <PackageReference Include="Jint" Version="3.0.0-beta-1632" />
   </ItemGroup>
 </Project>

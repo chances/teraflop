@@ -5,6 +5,6 @@ namespace Teraflop.Components
     public interface IResourceSet
     {
         IEnumerable<ResourceLayoutElementDescription> ResourceLayout { get; }
-        void BindResourceSet();
+        void BindResourceSet(int shaderHandle);
     }
 }

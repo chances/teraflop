@@ -86,5 +86,12 @@ namespace Teraflop.Examples.Triangle
                 new ResourceLayoutElementDescription("Color", ResourceKind.UniformBuffer,
                     ShaderStages.Fragment)
             };
+
+        public void BindResourceSet(int shaderHandle)
+        {
+            _model.Buffer.Bind(shaderHandle, "Model");
+            _view.Buffer.Bind(shaderHandle, "ViewProj");
+            _color.Buffer.Bind(shaderHandle, "Color");
+        }
     }
 }

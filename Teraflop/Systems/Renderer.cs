@@ -29,7 +29,6 @@ namespace Teraflop.Systems
                         entity.GetComponent<Material>(),
                         mesh.FrontFace,
                         mesh.PrimitiveTopology,
-                        entity.GetComponent<IResourceSet>().ResourceLayout,
                         mesh.VertexBuffer.LayoutDescription
                     );
                 });
@@ -38,7 +37,6 @@ namespace Teraflop.Systems
                 var material = renderable.Key.Item1;
                 var frontFace = renderable.Key.FrontFace;
                 var primitiveTopology = renderable.Key.PrimitiveTopology;
-                var resourceLayout = renderable.Key.ResourceLayout;
                 var vertexLayout = renderable.Key.LayoutDescription;
 
                 GL.BlendFunc(material.BlendStateSource, material.BlendStateDestination);
@@ -49,14 +47,13 @@ namespace Teraflop.Systems
                 // TODO: GL.Scissor() if we need to enable the scissor test
                 GL.UseProgram(material.ShaderProgramHandle);
 
-                var meshesWithUniforms = renderable.Select(entity => (
+                var meshesWithResources = renderable.Select(entity => (
                     entity.GetComponent<MeshData>(),
-                    entity.GetComponent<IResourceSet>().ResourceLayout
+                    entity.GetComponent<IResourceSet>()
                 ));
-                foreach (var meshAndUniforms in meshesWithUniforms)
+                foreach (var meshAndResources in meshesWithResources)
                 {
-                    var mesh = meshAndUniforms.Item1;
-                    var uniforms = meshAndUniforms.ResourceLayout.ToList();
+                    var mesh = meshAndResources.Item1;
                     var vertexBuffer = mesh.VertexBuffer;
                     var bufferLayout = vertexBuffer.LayoutDescription;
 
@@ -76,6 +73,7 @@ namespace Teraflop.Systems
                     }
 
                     // Bind uniforms
+                    meshAndResources.Item2.BindResourceSet(material.ShaderProgramHandle);
 
                     // TODO: Group renderables by MeshData and figure out instance uniforms
 

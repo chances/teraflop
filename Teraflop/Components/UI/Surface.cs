@@ -96,7 +96,7 @@ namespace Teraflop.Components.UI
             return destination;
         }
 
-        public void BindResourceSet()
+        public void BindResourceSet(int shaderHandle)
         {
             throw new NotImplementedException();
         }

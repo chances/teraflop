@@ -5,7 +5,7 @@ using Teraflop.Assets;
 using Teraflop.ECS;
 using JetBrains.Annotations;
 using LiteGuard;
-using OpenTK.Graphics.ES20;
+using OpenTK.Graphics.ES30;
 
 namespace Teraflop.Components
 {

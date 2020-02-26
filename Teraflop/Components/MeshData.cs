@@ -2,7 +2,7 @@
 using Teraflop.Buffers;
 using Teraflop.ECS;
 using JetBrains.Annotations;
-using OpenTK.Graphics.ES20;
+using OpenTK.Graphics.ES30;
 
 namespace Teraflop.Components
 {

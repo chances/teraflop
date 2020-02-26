@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Teraflop.Components;
 using Teraflop.ECS;
-using OpenTK.Graphics.ES20;
+using OpenTK.Graphics.ES30;
 using OpenTK.Graphics;
 
 namespace Teraflop.Systems

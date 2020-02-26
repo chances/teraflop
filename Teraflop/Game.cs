@@ -8,7 +8,7 @@ using Teraflop.Input;
 using Teraflop.Systems;
 using OpenTK;
 using OpenTK.Graphics;
-using OpenTK.Graphics.ES20;
+using OpenTK.Graphics.ES30;
 
 namespace Teraflop
 {

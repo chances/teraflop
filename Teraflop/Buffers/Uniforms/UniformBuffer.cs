@@ -1,6 +1,6 @@
 using System.Linq;
 using System.Runtime.CompilerServices;
-using OpenTK.Graphics.ES20;
+using OpenTK.Graphics.ES30;
 
 namespace Teraflop.Buffers.Uniforms
 {

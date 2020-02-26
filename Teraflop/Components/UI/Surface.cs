@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using Teraflop.Components.Receivers;
 using Teraflop.ECS;
 using Teraflop.Primitives;
-using OpenTK.Graphics.ES20;
+using OpenTK.Graphics.ES30;
 
 namespace Teraflop.Components.UI
 {

@@ -7,7 +7,7 @@ using Teraflop.Buffers.Layouts;
 using Teraflop.Components;
 using JetBrains.Annotations;
 using LiteGuard;
-using OpenTK.Graphics.ES20;
+using OpenTK.Graphics.ES30;
 
 namespace Teraflop.Primitives
 {

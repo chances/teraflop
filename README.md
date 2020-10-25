@@ -6,6 +6,6 @@ C# ECS game engine on a [Veldrid](https://github.com/mellinoe/veldrid) foundatio
 
 ## License
 
-[MIT License](http://opensource.org/licenses/MIT)
+[3-Clause BSD License](https://opensource.org/licenses/BSD-3-Clause)
 
-Copyright &copy; 2019 Chance Snow. All rights reserved.
+Copyright &copy; 2019-2020 Chance Snow. All rights reserved.

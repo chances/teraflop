@@ -20,7 +20,9 @@ jobs:
       with:
         dotnet-version: '8.0.x'
     - name: Build Solution
-      run: dotnet build
+      run: |
+        dotnet workload restore
+        dotnet build
     - name: Test
       if: success()
       run: dotnet test

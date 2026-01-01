@@ -1,11 +1,13 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Veldrid;
 
 namespace Teraflop.Buffers.Uniforms
 {
-    public class UniformBuffer<T> : Buffer where T : struct
+    public class UniformBuffer<T> : Buffer where T : unmanaged
     {
         private GraphicsDevice _device;
+        [NotNull]
         private T _uniformData;
 
         public UniformBuffer()
@@ -41,7 +43,7 @@ namespace Teraflop.Buffers.Uniforms
 
         private void Update()
         {
-            _device.UpdateBuffer(_buffer, 0, UniformData);
+            _device.UpdateBuffer(_buffer, 0, _uniformData);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 using Teraflop.Buffers;
 using Teraflop.ECS;
 using JetBrains.Annotations;
@@ -25,7 +25,7 @@ namespace Teraflop.Components
         }
     }
 
-    public class MeshData<T> : MeshData, IResource where T : struct, IVertexBufferDescription
+    public class MeshData<T> : MeshData, IResource where T : unmanaged, IVertexBufferDescription
     {
         public bool Initialized => VertexBuffer.Initialized;
 

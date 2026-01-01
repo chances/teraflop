@@ -17,7 +17,7 @@ namespace Teraflop.Buffers
         public IndexBuffer Indices { get; protected set; }
     }
 
-    public class VertexBuffer<T> : VertexBuffer where T : struct, IVertexBufferDescription
+    public class VertexBuffer<T> : VertexBuffer where T : unmanaged, IVertexBufferDescription
     {
         private readonly T[] _vertices;
 

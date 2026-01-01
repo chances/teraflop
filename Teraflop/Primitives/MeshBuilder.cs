@@ -75,7 +75,7 @@ namespace Teraflop.Primitives
         /// <param name="name">Name to give the instantiated <see cref="Engine.ECS.Component"/></param>
         /// <returns>Guaranteed to return an instance of <see cref="MeshData{T}"/></returns>
         /// <exception cref="InvalidOperationException">Zero vertices are stored</exception>
-        public MeshData<T> Build<T>(string name) where T : struct, IVertexBufferDescription
+        public MeshData<T> Build<T>(string name) where T : unmanaged, IVertexBufferDescription
         {
             if (_vertices == null || _vertices.Length == 0)
             {

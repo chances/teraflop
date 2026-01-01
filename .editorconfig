@@ -13,9 +13,11 @@ insert_final_newline = true
 [*.md]
 trim_trailing_whitespace = false
 
-# C# files
-[*.cs]
+# C# and VisualBasic files
+[*.{cs,vb}]
+indent_style = tab
 indent_size = 4
+tab_width = 4
 
 # Makefiles
 [Makefile]
@@ -271,7 +273,6 @@ dotnet_style_prefer_compound_assignment = true:suggestion
 dotnet_style_prefer_simplified_interpolation = true:suggestion
 dotnet_style_prefer_collection_expression = when_types_loosely_match:suggestion
 dotnet_style_namespace_match_folder = false:silent
-tab_width = 4
 dotnet_style_readonly_field = true:suggestion
 dotnet_style_predefined_type_for_locals_parameters_members = true:silent
 dotnet_style_predefined_type_for_member_access = true:silent

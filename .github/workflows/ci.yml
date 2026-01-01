@@ -15,10 +15,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Use .NET Core 3.1
-      uses: actions/setup-dotnet@v1
+    - name: Use .NET 8
+      uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: '3.1.100' # .NET Core v3.1.0, SDK 3.1.100
+        dotnet-version: '8.0.x'
     - name: Build Solution
       run: dotnet build
     - name: Test

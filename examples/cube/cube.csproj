@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../Teraflop/Teraflop.csproj" />
+    <ProjectReference Include="../example/example.csproj" />
+  </ItemGroup>
+
+  <Choose>
+    <When Condition="$([MSBuild]::IsOSPlatform('macos'))">
+      <PropertyGroup>
+        <ProfileName>macOS</ProfileName>
+        <!-- See https://github.com/xamarin/xamarin-macios -->
+        <TargetFramework>net8.0-macos</TargetFramework>
+        <ImplicitUsings>true</ImplicitUsings>
+        <TargetPlatformVersion>10.15</TargetPlatformVersion>
+      </PropertyGroup>
+    </When>
+    <When Condition="$([MSBuild]::IsOSPlatform('windows'))">
+      <PropertyGroup>
+        <ProfileName>Windows</ProfileName>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <UseWindowsForms>true</UseWindowsForms>
+      </PropertyGroup>
+    </When>
+  </Choose>
+</Project>

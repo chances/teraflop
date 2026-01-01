@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "triangle", "examples\triang
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "example", "examples\example\example.csproj", "{4ED01FD3-B837-4B48-93D9-1DD73FC6560A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cube", "examples\cube\cube.csproj", "{C9981C74-A7C2-6184-3073-9CBEF2CBC1CF}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F6787E8F-3593-441D-9565-2BE96B95CEF4}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
@@ -62,6 +64,18 @@ Global
 		{4ED01FD3-B837-4B48-93D9-1DD73FC6560A}.Release|x64.Build.0 = Release|Any CPU
 		{4ED01FD3-B837-4B48-93D9-1DD73FC6560A}.Release|x86.ActiveCfg = Release|Any CPU
 		{4ED01FD3-B837-4B48-93D9-1DD73FC6560A}.Release|x86.Build.0 = Release|Any CPU
+		{C9981C74-A7C2-6184-3073-9CBEF2CBC1CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9981C74-A7C2-6184-3073-9CBEF2CBC1CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9981C74-A7C2-6184-3073-9CBEF2CBC1CF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C9981C74-A7C2-6184-3073-9CBEF2CBC1CF}.Debug|x64.Build.0 = Debug|Any CPU
+		{C9981C74-A7C2-6184-3073-9CBEF2CBC1CF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C9981C74-A7C2-6184-3073-9CBEF2CBC1CF}.Debug|x86.Build.0 = Debug|Any CPU
+		{C9981C74-A7C2-6184-3073-9CBEF2CBC1CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9981C74-A7C2-6184-3073-9CBEF2CBC1CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9981C74-A7C2-6184-3073-9CBEF2CBC1CF}.Release|x64.ActiveCfg = Release|Any CPU
+		{C9981C74-A7C2-6184-3073-9CBEF2CBC1CF}.Release|x64.Build.0 = Release|Any CPU
+		{C9981C74-A7C2-6184-3073-9CBEF2CBC1CF}.Release|x86.ActiveCfg = Release|Any CPU
+		{C9981C74-A7C2-6184-3073-9CBEF2CBC1CF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -69,6 +83,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{B0210747-F6D5-4CB0-B20F-5EDF5BB88926} = {660034F2-71E2-4C4D-985F-98365B43939E}
 		{4ED01FD3-B837-4B48-93D9-1DD73FC6560A} = {660034F2-71E2-4C4D-985F-98365B43939E}
+		{C9981C74-A7C2-6184-3073-9CBEF2CBC1CF} = {660034F2-71E2-4C4D-985F-98365B43939E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D53EEB32-E9D0-4F82-9EB9-9702A52FDEDF}

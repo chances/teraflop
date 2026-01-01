@@ -7,6 +7,8 @@ using Teraflop.Input;
 
 namespace Teraflop.Examples {
 	public class OrbitCamera : Camera, IUserInput {
+		public const float DefaultZoom = 3.0f;
+
 		private const float MinZoom = 1;
 		private const float MaxZoom = 200;
 		private readonly float MinTilt = 5f.DegToRad();
@@ -15,7 +17,7 @@ namespace Teraflop.Examples {
 		private const float ZoomPerSecond = 5;
 		private readonly float OrbitPerSecond = 180f.DegToRad();
 
-		private float _zoom = 3.0f;
+		private float _zoom = DefaultZoom;
 		private Vector3 _yawPitchRoll = Vector3.Zero;
 
 		public float Zoom {
@@ -73,8 +75,10 @@ namespace Teraflop.Examples {
 			YawPitchRoll = new Vector3(
 				Math.Clamp(YawPitchRoll.X, MinTilt, MaxTilt), YawPitchRoll.Y, YawPitchRoll.Z);
 
-			if (KeyboardState.IsKeyDown(Key.Home))
+			if (KeyboardState.IsKeyDown(Key.Home)) {
+				Zoom = DefaultZoom;
 				YawPitchRoll = Vector3.Zero;
+			}
 
 			base.Update(gameTime);
 		}

@@ -6,6 +6,24 @@ using Teraflop.ECS;
 using Veldrid;
 
 namespace Teraflop.Components.Geometry {
+	public struct Basis {
+		public Vector3 Forward;
+		public Vector3 Right;
+		public Vector3 Up;
+
+		public Basis(Vector3 position, Vector3 lookAt) {
+			Forward = Vector3.Normalize(lookAt - position);
+			Right = Vector3.UnitY;
+			Up = Vector3.UnitZ;
+		}
+
+		public static Basis Default = new Basis() {
+			Forward = Vector3.UnitY,
+			Right = Vector3.UnitX,
+			Up = Vector3.UnitZ,
+		};
+	}
+
 	public class Transformation : ComposableResource, ICameraViewProjection {
 		private UniformModelTransformation _model =
 			new UniformModelTransformation(Matrix4x4.Identity);

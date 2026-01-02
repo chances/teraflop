@@ -7,34 +7,36 @@ using Teraflop.Input;
 
 namespace Teraflop.Examples {
 	public class OrbitCamera : Camera, IUserInput {
-		public const float DefaultZoom = 3.0f;
-
-		private const float MinZoom = 1;
-		private const float MaxZoom = 200;
-		private readonly float MinTilt = 5f.DegToRad();
-		private readonly float MaxTilt = 85f.DegToRad();
-
-		private const float ZoomPerSecond = 5;
-		private readonly float OrbitPerSecond = 180f.DegToRad();
+		public static readonly float DefaultZoom = 3.0f;
+		public static readonly float DefaultYaw = 90f.DegToRad();
 
 		private float _zoom = DefaultZoom;
-		private Vector3 _yawPitchRoll = Vector3.Zero;
+		private const float ZoomPerSecond = 10;
+		private readonly float OrbitPerSecond = 180f.DegToRad();
+
+		/// <summary>
+		/// Rotation around Z axis.
+		/// </summary>
+		public float Yaw { get; set; } = DefaultYaw;
+		/// <summary>
+		/// Tilt around the local right axis.
+		/// </summary>
+		public float Pitch { get; set; }
 
 		public float Zoom {
 			get => _zoom;
 			set {
 				_zoom = value;
-				UpdatePosition(YawPitchRoll);
+				UpdatePosition();
 			}
 		}
+
 		public Vector3 FocalPoint { get => LookAt; set => LookAt = value; }
-		public Vector3 YawPitchRoll {
-			get => _yawPitchRoll;
-			set {
-				_yawPitchRoll = value;
-				UpdatePosition(YawPitchRoll);
-			}
-		}
+
+		public float MinZoom = 1;
+		public float MaxZoom = 200;
+		public float MinTilt = 5f.DegToRad();
+		public float MaxTilt = 85f.DegToRad();
 
 		public MouseState MouseState { private get; set; }
 		public KeyboardState KeyboardState { private get; set; }
@@ -69,30 +71,34 @@ namespace Teraflop.Examples {
 			zoom *= zoomIn ? -1 : zoomOut ? 1 : 0;
 			Zoom = Math.Clamp(Zoom += zoom, MinZoom, MaxZoom);
 
-			var orbitY = orbit * (ShouldOrbitLeft ? -1 : ShouldOrbitRight ? 1 : 0);
-			var orbitX = orbit * (ShouldOrbitDown ? -1 : ShouldOrbitUp ? 1 : 0);
-			YawPitchRoll += new Vector3(orbitX, orbitY, 0);
-			YawPitchRoll = new Vector3(
-				Math.Clamp(YawPitchRoll.X, MinTilt, MaxTilt), YawPitchRoll.Y, YawPitchRoll.Z);
+			var orbitYaw = orbit * (ShouldOrbitLeft ? -1 : ShouldOrbitRight ? 1 : 0);
+			var orbitPitch = orbit * (ShouldOrbitDown ? -1 : ShouldOrbitUp ? 1 : 0);
+			Yaw += orbitYaw;
+			// Clamp pitch to prevent gimbal lock
+			Pitch = Math.Clamp(Pitch + orbitPitch, MinTilt, MaxTilt);
 
 			if (KeyboardState.IsKeyDown(Key.Home)) {
 				Zoom = DefaultZoom;
-				YawPitchRoll = Vector3.Zero;
+				Yaw = DefaultYaw;
+				Pitch = 0;
 			}
+
+			UpdatePosition();
 
 			base.Update(gameTime);
 		}
 
-		private void UpdatePosition(Vector3 yawPitchRoll) {
-			var transformation = Matrix4x4.Identity;
-			transformation.Translation = new Vector3(0, 0, Zoom * -1);
-			transformation = Matrix4x4.Transform(transformation, Quaternion.CreateFromYawPitchRoll(
-				yawPitchRoll.Y,
-				yawPitchRoll.X,
-				yawPitchRoll.Z
-			));
+		private void UpdatePosition() {
+			// Build rotation quaternion with Z-up convention
+			Quaternion yawRotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, Yaw);
+			Quaternion pitchRotation = Quaternion.CreateFromAxisAngle(Vector3.UnitY, Pitch);
 
-			Position = Vector3.Transform(FocalPoint, transformation);
+			// Combine rotations: Apply pitch first, then yaw.
+			var rotation = yawRotation * pitchRotation;
+
+			// Look-at direction is +X pointing towards the origin
+			var direction = Vector3.Transform(Components.Geometry.Basis.Default.Right, rotation);
+			Position = FocalPoint - direction * Zoom;
 		}
 	}
 }

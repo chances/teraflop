@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Numerics;
 using Teraflop.Buffers.Uniforms;
+using Teraflop.Components.Geometry;
 using Teraflop.Components.Receivers;
 using Teraflop.ECS;
 
@@ -24,8 +25,7 @@ namespace Teraflop.Components {
 
 		public Size FramebufferSize { get; set; } = new Size(960, 540);
 
-		// FIXME: Ensure this and the `OrbitCamera` use Z-up.
-		public Matrix4x4 ViewMatrix => Matrix4x4.CreateLookAt(Position, LookAt, Vector3.UnitY);
+		public Matrix4x4 ViewMatrix => Matrix4x4.CreateLookAt(Position, LookAt, Basis.Default.Up);
 
 		public Matrix4x4 ProjectionMatrix {
 			get {
@@ -39,9 +39,11 @@ namespace Teraflop.Components {
 			}
 		}
 
-		public Vector3 Position { get; set; } = Vector3.UnitZ * 3f;
+		public Vector3 Position { get; set; } = Basis.Default.Up * 3f;
 
 		public Vector3 LookAt { get; set; } = Vector3.Zero;
+
+		public Basis Basis => new Basis(Position, LookAt);
 
 		public UniformBuffer<Matrix4x4> ViewProjectionUniform => _viewProj.Buffer;
 

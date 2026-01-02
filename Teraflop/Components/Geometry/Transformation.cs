@@ -35,6 +35,8 @@ namespace Teraflop.Components.Geometry {
 			Resources.OnDispose += (_, __) => _model.Buffer.Dispose();
 		}
 
+		public static Transformation Identity = new Transformation();
+
 		public Matrix4x4 Value {
 			get => _model.Buffer.UniformData;
 			set => _model.Buffer.UniformData = value;

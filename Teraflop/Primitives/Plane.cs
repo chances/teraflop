@@ -5,6 +5,9 @@ using Teraflop.Buffers.Layouts;
 using Teraflop.Components;
 
 namespace Teraflop.Primitives {
+	/// <summary>
+	/// A 2D plane with an upwards facing normal.
+	/// </summary>
     public class Plane : IPrimitive {
         public Plane(string name) {
             var mesh = new MeshBuilder().WithVertices(new List<IVertexBufferDescription> {

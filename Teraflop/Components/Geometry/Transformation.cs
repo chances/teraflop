@@ -58,6 +58,31 @@ namespace Teraflop.Components.Geometry {
 			}
 		}
 
+		public Vector3 Scale {
+			get {
+				if (Matrix4x4.Decompose(Value, out Vector3 scale, out _, out _)) return scale;
+				return Vector3.Zero;
+			}
+			set {
+				// Extract current scale
+				float currentScaleX = new Vector3(Value.M11, Value.M12, Value.M13).Length();
+				float currentScaleY = new Vector3(Value.M21, Value.M22, Value.M23).Length();
+				float currentScaleZ = new Vector3(Value.M31, Value.M32, Value.M33).Length();
+
+				// Calculate scale factors
+				float factorX = value.X / currentScaleX;
+				float factorY = value.Y / currentScaleY;
+				float factorZ = value.Z / currentScaleZ;
+
+				// Apply to the rotation/scale part (first 3 columns, first 3 rows)
+				var matrix = Value;
+				matrix.M11 *= factorX; matrix.M12 *= factorX; matrix.M13 *= factorX;
+				matrix.M21 *= factorY; matrix.M22 *= factorY; matrix.M23 *= factorY;
+				matrix.M31 *= factorZ; matrix.M32 *= factorZ; matrix.M33 *= factorZ;
+				Value = matrix;
+			}
+		}
+
 		#region Veldrid
 		public UniformBuffer<Matrix4x4> CameraViewProjection { internal get; set; }
 		public override IEnumerable<ResourceLayoutElementDescription> ResourceLayout =>

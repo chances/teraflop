@@ -30,7 +30,7 @@ namespace Teraflop.Components {
 		public Matrix4x4 ProjectionMatrix {
 			get {
 				var fieldOfView = (float)Math.PI / 2.0f; // 90 degrees
-				float nearClipPlane = 0.25f;
+				float nearClipPlane = 0.1f;
 				float farClipPlane = 200;
 				var aspectRatio = FramebufferSize.Width / (float)FramebufferSize.Height;
 

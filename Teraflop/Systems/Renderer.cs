@@ -11,7 +11,7 @@ namespace Teraflop.Systems {
 		private readonly Framebuffer _framebuffer;
 		private readonly Action<CommandList> _submitCommands;
 		private readonly CommandList _commands;
-		private readonly Dictionary<Material, Pipeline> _pipelines = new Dictionary<Material, Pipeline>();
+		private readonly Dictionary<int, Pipeline> _pipelines = new Dictionary<int, Pipeline>();
 
 		public Renderer(World world, ResourceFactory factory, Framebuffer framebuffer, Action<CommandList> submitCommands) : base(world) {
 			_factory = factory;
@@ -38,21 +38,22 @@ namespace Teraflop.Systems {
 					);
 				});
 			foreach (var renderable in renderables) {
+				var key = renderable.Key.ToTuple().GetHashCode();
 				var material = renderable.Key.Item1;
 
-				if (!_pipelines.ContainsKey(material)) {
+				if (!_pipelines.ContainsKey(key)) {
 					var frontFace = renderable.Key.FrontFace;
 					var primitiveTopology = renderable.Key.PrimitiveTopology;
 					var resourceLayout = renderable.Key.ResourceLayout;
 					var vertexLayout = renderable.Key.LayoutDescription;
-					var pipeline = CreatePipeline(material,
-						frontFace, primitiveTopology,
-						resourceLayout, vertexLayout);
+					var pipeline = CreatePipeline(
+						material, frontFace, primitiveTopology, resourceLayout, vertexLayout
+					);
 
-					_pipelines.Add(material, pipeline);
+					_pipelines.Add(key, pipeline);
 				}
 
-				_commands.SetPipeline(_pipelines[material]);
+				_commands.SetPipeline(_pipelines[key]);
 
 				var meshesWithUniforms = renderable.Select(entity => (
 					entity.GetComponent<MeshData>().VertexBuffer,
@@ -82,7 +83,7 @@ namespace Teraflop.Systems {
 		public void Dispose() {
 			_commands.Dispose();
 
-			foreach (var pipeline in _pipelines.Keys) pipeline.Dispose();
+			foreach (var pipeline in _pipelines.Values) pipeline.Dispose();
 		}
 
 		/// <remarks>

@@ -1,13 +1,14 @@
+using JetBrains.Annotations;
+using LiteGuard;
+using System;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Teraflop.Assets;
 using Teraflop.ECS;
-using JetBrains.Annotations;
-using LiteGuard;
 using Veldrid;
 using Veldrid.SPIRV;
-using System.Threading.Tasks;
 
 namespace Teraflop.Components {
 	public class Material : Resource, IAssetSink, IDependencies {
@@ -62,6 +63,12 @@ namespace Teraflop.Components {
 
 		public bool AreDependenciesSatisfied =>
 			_vertexShaderSource != null && _fragmentShaderSource != null;
+
+		public override int GetHashCode() {
+			return Tuple.Create(
+				ShaderFilename, DepthStencilState.GetHashCode(), CullMode, FillMode, DepthClipEnabled, BlendState
+			).GetHashCode();
+		}
 
 		public async Task LoadAssets(IAssetSource assetSource) {
 			var shaderFileName = assetSource.GetAbsolutePath(ShaderFilename);

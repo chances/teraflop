@@ -1,9 +1,7 @@
 using Teraflop.Input;
 
-namespace Teraflop.Components.Receivers
-{
-    public interface IMouseInput
-    {
-        MouseState MouseState { set; }
-    }
+namespace Teraflop.Components.Receivers {
+	public interface IMouseInput {
+		MouseState MouseState { set; }
+	}
 }

@@ -4,76 +4,68 @@ using System.Collections.Generic;
 using System.Linq;
 using Teraflop.Components;
 
-namespace Teraflop.ECS
-{
-    public class Entity : IReadOnlyDictionary<string, Component>
-    {
-        private readonly Dictionary<string, Component> _components = new Dictionary<string, Component>();
+namespace Teraflop.ECS {
+	public class Entity : IReadOnlyDictionary<string, Component> {
+		private readonly Dictionary<string, Component> _components = new Dictionary<string, Component>();
 
-        public Entity()
-        {
-        }
+		public Entity() {
+		}
 
-        public Entity(IEnumerable<Component> components)
-        {
-            foreach (var component in components)
-            {
-                Add(component);
-            }
-        }
+		public Entity(IEnumerable<Component> components) {
+			foreach (var component in components) {
+				Add(component);
+			}
+		}
 
-        public Guid Id { get; } = Guid.NewGuid();
+		public Guid Id { get; } = Guid.NewGuid();
 
-        public Tags Tags { get; private set; } = 0;
+		public Tags Tags { get; private set; } = 0;
 
-        public IEnumerator<KeyValuePair<string, Component>> GetEnumerator() => _components.GetEnumerator();
+		public IEnumerator<KeyValuePair<string, Component>> GetEnumerator() => _components.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => _components.GetEnumerator();
+		IEnumerator IEnumerable.GetEnumerator() => _components.GetEnumerator();
 
-        public int Count => _components.Count;
-        public bool ContainsKey(string key) => _components.ContainsKey(key);
+		public int Count => _components.Count;
+		public bool ContainsKey(string key) => _components.ContainsKey(key);
 
-        public bool TryGetValue(string key, out Component value) => _components.TryGetValue(key, out value);
+		public bool TryGetValue(string key, out Component value) => _components.TryGetValue(key, out value);
 
-        public Component this[string key] => _components[key];
+		public Component this[string key] => _components[key];
 
-        public IEnumerable<string> Keys => _components.Keys;
-        public IEnumerable<Component> Values => _components.Values;
+		public IEnumerable<string> Keys => _components.Keys;
+		public IEnumerable<Component> Values => _components.Values;
 
-        public void Add(Component component)
-        {
-            var name = $"{component.GetType().Name}:{component.Name}";
-            if (_components.ContainsKey(name) || _components.Values.Contains(component))
-                _components[name] = component;
-            else
-                _components.Add(name, component);
-        }
+		public void Add(Component component) {
+			var name = $"{component.GetType().Name}:{component.Name}";
+			if (_components.ContainsKey(name) || _components.Values.Contains(component))
+				_components[name] = component;
+			else
+				_components.Add(name, component);
+		}
 
-        public void AddTag(Tags tag)
-        {
-            Tags |= tag;
+		public void AddTag(Tags tag) {
+			Tags |= tag;
 
-            Console.WriteLine($"{this.Id} tags:");
-            foreach (var presentTag in Enum.GetValues(typeof(Components.Tags)))
-            {
-                if (presentTag is Tags t && Tags.HasFlag(t)) {
-                    Console.WriteLine(presentTag.ToString());
-                }
-            }
-            Console.WriteLine();
-        }
+			Console.WriteLine($"{this.Id} tags:");
+			foreach (var presentTag in Enum.GetValues(typeof(Components.Tags))) {
+				if (presentTag is Tags t && Tags.HasFlag(t)) {
+					Console.WriteLine(presentTag.ToString());
+				}
+			}
+			Console.WriteLine();
+		}
 
-        public bool HasTag(Tags tag) => Tags.HasFlag(tag);
+		public bool HasTag(Tags tag) => Tags.HasFlag(tag);
 
-        public bool HasComponent<T>() => _components.Values.Any(component => component is T);
+		public bool HasComponent<T>() => _components.Values.Any(component => component is T);
 
-        public bool HasComponentsOfTypes(params Type[] types) =>
-            types.All(type =>
-                _components.Values.Any(component => type.IsInstanceOfType(component))
-            );
+		public bool HasComponentsOfTypes(params Type[] types) =>
+			types.All(type =>
+				_components.Values.Any(component => type.IsInstanceOfType(component))
+			);
 
-        public IEnumerable<T> GetComponents<T>() => _components.Values.OfType<T>();
+		public IEnumerable<T> GetComponents<T>() => _components.Values.OfType<T>();
 
-        public T GetComponent<T>() => GetComponents<T>().FirstOrDefault();
-    }
+		public T GetComponent<T>() => GetComponents<T>().FirstOrDefault();
+	}
 }

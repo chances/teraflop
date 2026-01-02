@@ -1,20 +1,18 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 
-namespace Teraflop.ECS
-{
-    public class World : IReadOnlyList<Entity>
-    {
-        private readonly List<Entity> _entities = new List<Entity>();
+namespace Teraflop.ECS {
+	public class World : IReadOnlyList<Entity> {
+		private readonly List<Entity> _entities = new List<Entity>();
 
-        public IEnumerator<Entity> GetEnumerator() => _entities.GetEnumerator();
+		public IEnumerator<Entity> GetEnumerator() => _entities.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => _entities.GetEnumerator();
+		IEnumerator IEnumerable.GetEnumerator() => _entities.GetEnumerator();
 
-        public int Count => _entities.Count;
+		public int Count => _entities.Count;
 
-        public Entity this[int index] => _entities[index];
+		public Entity this[int index] => _entities[index];
 
-        public void Add(Entity entity) => _entities.Add(entity);
-    }
+		public void Add(Entity entity) => _entities.Add(entity);
+	}
 }

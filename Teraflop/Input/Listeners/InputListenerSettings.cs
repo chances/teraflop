@@ -1,8 +1,6 @@
-﻿namespace Teraflop.Input.Listeners
-{
-    public abstract class InputListenerSettings<T>
-        where T : InputListener
-    {
-        public abstract T CreateListener();
-    }
+namespace Teraflop.Input.Listeners {
+	public abstract class InputListenerSettings<T>
+		where T : InputListener {
+		public abstract T CreateListener();
+	}
 }

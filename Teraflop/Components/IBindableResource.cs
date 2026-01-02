@@ -1,10 +1,8 @@
-﻿using Veldrid;
+using Veldrid;
 
-namespace Teraflop.Components
-{
-    public interface IBindableResource
-    {
-        ResourceLayout ResourceLayout { get; }
-        ResourceSet ResourceSet { get; }
-    }
+namespace Teraflop.Components {
+	public interface IBindableResource {
+		ResourceLayout ResourceLayout { get; }
+		ResourceSet ResourceSet { get; }
+	}
 }

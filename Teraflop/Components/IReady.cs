@@ -1,7 +1,5 @@
-namespace Teraflop.Components
-{
-    public interface IReady
-    {
-        bool IsReady { get; }
-    }
+namespace Teraflop.Components {
+	public interface IReady {
+		bool IsReady { get; }
+	}
 }

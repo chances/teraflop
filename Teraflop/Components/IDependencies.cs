@@ -1,7 +1,5 @@
-namespace Teraflop.Components
-{
-    public interface IDependencies
-    {
-        bool AreDependenciesSatisfied { get; }
-    }
+namespace Teraflop.Components {
+	public interface IDependencies {
+		bool AreDependenciesSatisfied { get; }
+	}
 }

@@ -1,8 +1,6 @@
-﻿namespace Teraflop.Input
-{
-    public enum ButtonState
-    {
-        Pressed,
-        Released
-    }
+namespace Teraflop.Input {
+	public enum ButtonState {
+		Pressed,
+		Released
+	}
 }

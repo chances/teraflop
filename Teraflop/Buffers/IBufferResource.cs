@@ -1,8 +1,6 @@
 using Teraflop.Components;
 
-namespace Teraflop.Buffers
-{
-    interface IBufferResource : IResource
-    {
-    }
+namespace Teraflop.Buffers {
+	interface IBufferResource : IResource {
+	}
 }

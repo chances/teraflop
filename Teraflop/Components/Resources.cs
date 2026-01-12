@@ -3,20 +3,20 @@ using Veldrid;
 
 namespace Teraflop.Components {
 	public class Resources : IResource {
-		public event EventHandler<InitializeEventArgs> OnInitialize;
-		public event EventHandler OnDispose;
+		public event EventHandler<InitializingEventArgs> Initializing;
+		public event EventHandler Disposed;
 		public bool Initialized { get; private set; } = false;
 
 		public void Initialize(ResourceFactory factory, GraphicsDevice device) {
-			var handler = OnInitialize;
+			var handler = Initializing;
 			if (handler != null) {
-				handler(this, new InitializeEventArgs(factory, device));
+				handler(this, new InitializingEventArgs(factory, device));
 				Initialized = true;
 			}
 		}
 
 		public void Dispose() {
-			var handler = OnDispose;
+			var handler = Disposed;
 			if (handler != null) {
 				handler(this, new EventArgs());
 				Initialized = false;
@@ -24,12 +24,8 @@ namespace Teraflop.Components {
 		}
 	}
 
-	public class InitializeEventArgs : EventArgs {
-		public InitializeEventArgs(ResourceFactory factory, GraphicsDevice device) {
-			ResourceFactory = factory;
-			GraphicsDevice = device;
-		}
-		public ResourceFactory ResourceFactory { get; }
-		public GraphicsDevice GraphicsDevice { get; }
+	public class InitializingEventArgs(ResourceFactory factory, GraphicsDevice device) : EventArgs {
+		public ResourceFactory ResourceFactory { get; } = factory;
+		public GraphicsDevice GraphicsDevice { get; } = device;
 	}
 }

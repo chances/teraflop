@@ -15,12 +15,12 @@ namespace Teraflop.Components {
 		public Camera() : base(nameof(Camera)) {
 			//            _tweener = new TweeningComponent(game, new AnimationComponent(game));
 
-			Resources.OnInitialize += (_, e) => {
+			Resources.Initializing += (_, e) => {
 				var factory = e.ResourceFactory;
 				_viewProj = new UniformViewProjection(ViewProjection);
 				_viewProj.Buffer.Initialize(factory, e.GraphicsDevice);
 			};
-			Resources.OnDispose += (_, __) => _viewProj.Buffer.Dispose();
+			Resources.Disposed += (_, __) => _viewProj.Buffer.Dispose();
 		}
 
 		public Size FramebufferSize { get; set; } = new Size(960, 540);

@@ -25,7 +25,7 @@ namespace Teraflop.Components {
 			DepthClipEnabled = true;
 			BlendState = DefaultBlendState;
 
-			Resources.OnInitialize += (_, e) => {
+			Resources.Initializing += (_, e) => {
 				var factory = e.ResourceFactory;
 				// Compile shaders
 				try {
@@ -44,7 +44,7 @@ namespace Teraflop.Components {
 					_fragmentShaderSource = null;
 				}
 			};
-			Resources.OnDispose += (_, __) => {
+			Resources.Disposed += (_, __) => {
 				foreach (var shader in Shaders) shader.Dispose();
 			};
 		}

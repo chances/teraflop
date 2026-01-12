@@ -29,10 +29,10 @@ namespace Teraflop.Components.Geometry {
 			new UniformModelTransformation(Matrix4x4.Identity);
 
 		public Transformation() : base(nameof(Transformation)) {
-			Resources.OnInitialize += (_, e) => {
+			Resources.Initializing += (_, e) => {
 				_model.Buffer.Initialize(e.ResourceFactory, e.GraphicsDevice);
 			};
-			Resources.OnDispose += (_, __) => _model.Buffer.Dispose();
+			Resources.Disposed += (_, __) => _model.Buffer.Dispose();
 		}
 
 		public static Transformation Identity = new Transformation();

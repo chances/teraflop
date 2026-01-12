@@ -10,10 +10,10 @@ namespace Teraflop.Components {
 		public Color(RgbaFloat? color = null) : base(nameof(Color)) {
 			_color = color.HasValue ? new UniformColor(color.Value) : new UniformColor();
 
-			Resources.OnInitialize += (_, e) => {
+			Resources.Initializing += (_, e) => {
 				_color.Buffer.Initialize(e.ResourceFactory, e.GraphicsDevice);
 			};
-			Resources.OnDispose += (_, __) => _color.Buffer.Dispose();
+			Resources.Disposed += (_, __) => _color.Buffer.Dispose();
 		}
 
 		public RgbaFloat Value {

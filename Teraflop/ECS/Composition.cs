@@ -18,7 +18,7 @@ namespace Teraflop.ECS {
 				_resourceTypes.Add(resourceType, key);
 			}
 
-			Resources.OnInitialize += (_, e) => {
+			Resources.Initializing += (_, e) => {
 				var factory = e.ResourceFactory;
 
 				var resources = _resources.Values;

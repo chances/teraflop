@@ -34,7 +34,7 @@ namespace Teraflop.Components.UI {
 
 				CreateTexture();
 			};
-			Resources.OnDispose += (_, __) => {
+			Resources.Disposed += (_, __) => {
 				_textureView.Dispose();
 				_texture.Dispose();
 				ResourceSet.Dispose();

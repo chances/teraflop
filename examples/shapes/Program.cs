@@ -3,6 +3,7 @@ using System.Linq;
 using System.Numerics;
 using Teraflop.Components;
 using Teraflop.Components.Geometry;
+using Teraflop.Components.UI;
 using Teraflop.ECS;
 using Teraflop.Entities;
 using Veldrid;
@@ -27,6 +28,14 @@ internal class Shapes : Example {
         Title = nameof(Shapes);
 
         World.Add(EntityFactory.Create(new OrbitCamera()));
+
+		WebView.InitializeRenderer(Title);
+		var webView = new WebView();
+		World.Add(EntityFactory.Create(
+			webView,
+			new Surface(webView),
+			Surface.Mesh
+		));
 
         var flatMaterial = new Material("FlatMaterial", "flat.hlsl");
 
